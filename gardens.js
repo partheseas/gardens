@@ -6,8 +6,9 @@ let events = require( 'events' )
 let fs = require( 'fs' )
 let util = require( 'util' )
 
+let chalk = require( 'chalk' )
+
 let configuration = {}
-let outputStream
 
 class Timer {
   constructor( garden, name = 'anonymous' ) {
@@ -89,7 +90,7 @@ module.exports = class Garden extends events.EventEmitter {
 
   warning( message, ...extra ) {
     this._emit( 'warning', message, ...extra )
-    print( this.name, 'Warning', `\u001b[33m${format( message )}\u001b[39m`, extra )
+    print( this.name, 'Warning', chalk.yellow( format( message ) ), extra )
   }
 
   warn( ...details ) {
@@ -99,7 +100,7 @@ module.exports = class Garden extends events.EventEmitter {
   error( message, ...extra ) {
     let error = new Error( message )
     this._emit( 'error', error, ...extra )
-    print( this.name, 'Error', `\u001b[31m${format( message )}\u001b[39m`, extra )
+    print( this.name, 'Error', chalk.red( format( message ) ), extra )
     console.log( error.stack )
     return error
   }
@@ -107,7 +108,7 @@ module.exports = class Garden extends events.EventEmitter {
   typeerror( message, ...extra ) {
     let error = new TypeError( message )
     this._emit( 'typeerror', error, ...extra )
-    print( this.name, 'TypeError', `\u001b[31m${format( message )}\u001b[39m`, extra )
+    print( this.name, 'TypeError', chalk.red( format( message ) ), extra )
     console.log( error.stack )
     return error
   }
@@ -115,7 +116,7 @@ module.exports = class Garden extends events.EventEmitter {
   referenceerror( message, ...extra ) {
     let error = new ReferenceError( message )
     this._emit( 'referenceerror', error, ...extra )
-    print( this.name, 'ReferenceError', `\u001b[31m${format( message )}\u001b[39m`, extra )
+    print( this.name, 'ReferenceError', chalk.red( format( message ) ), extra )
     console.log( error.stack )
     return error
   }
@@ -123,7 +124,7 @@ module.exports = class Garden extends events.EventEmitter {
   catch( error, ...extra ) {
     if ( !error.stack ) error = new Error( error )
     this._emit( 'catch', error, ...extra )
-    print( this.name, 'Caught Error', `\u001b[31m${error.name}: ${error.message}\u001b[39m`, extra )
+    print( this.name, 'Caught Error', `${chalk.red( error.name )}: ${error.message}`, extra )
     console.log( error.stack )
     return error
   }
@@ -148,12 +149,14 @@ let format = function ( message ) {
 }
 
 let print = function ( name, type, message, extra ) {
-  process.stdout.write( `[${name}] \u001b[36m[${type}]\u001b[39m  ${message} ` )
+  process.stdout.write( `[${name}] ${chalk.cyan( `[${type}]` )}  ${message} ` )
 
-  if ( configuration.outputPath ) {
-    if ( !outputStream ) outputStream = fs.createWriteStream( configuration.outputPath, { 'flags': 'a' })
-    outputStream.write( `[${new Date().toLocaleString()}]  [${name}] [${type}]  ${message}\n` )
-  }
+  if ( configuration.outputPath ) fs.appendFile(
+    configuration.outputPath,
+    `[${new Date().toLocaleString()}]  [${name}] [${type}]  ${message}\n`,
+    'utf-8',
+    ( error ) => { if ( error ) console.error( error ) }
+  )
 
   extra && extra.length ? console.log( ...extra ) : process.stdout.write( '\n' )
 }
