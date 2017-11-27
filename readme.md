@@ -9,40 +9,50 @@ let gardens = require( 'gardens' )
 // -or-
 let Garden = require( 'gardens' )
 
-let garden = gardens.createGarden( 'example', isVerbose )
+let garden = gardens.createGarden( 'example', conf: object )
 // -or-
 let garden2 = new Garden( '2nd example' )
+```
 
+All your general logging needs!
+```JavaScript
 // These are all for general logging
 garden.log( 'message' )
 garden.info( 'new message' )
 garden.warn( 'uhh oh' )
 garden.warning( 'also uhh oh' )
+```
 
-garden.isVerbose()
-// These can be toggled and used for debugging
+Free conditional logging!
+```JavaScript
+garden.verbose = true
+
 garden.debug( 'this might be interesting' )
-graden.trace( 'if you are the package developer' )
+garden.trace( 'if you are the package developer' )
+```
 
-// These are used for logging different error types
-// They all return an instance of their respective errors
+Easily create errors to generate stack-traces and find where things go wrong.
+All of these methods return an instance of their respective error types.
+`catch` will take any type of error object and only generate a new error if it is not given one.
+```JavaScript
 garden.error( 'something went wrong!!1!' )
 garden.typeerror( 'you gave me the incorrect thing!' )
 garden.referenceerror( 'you gave me nothing!' )
 garden.catch( aThrownError )
+```
 
-// All 3 of the following examples time things.
+Time things easily, with nanosecond precision. Works with symbols!
+```JavaScript
 garden.time( name ) // Doesn't print anything
 garden.timeEnd( name ) // Will print the time in between calling .time() and now
-// You can use Symbols as names
+
 let tracker = Symbol()
 garden.time( tracker )
 garden.timeEnd( tracker )
-// You can also use the Timer instance this returns
-let timer = garden.time()
-timer.end()
+```
 
-// Counters work with Strings and Symbols as well
+There are counters that work with Strings and Symbols as well
+```JavaScript
 garden.count() // 1
 garden.count() // 2
 garden.count( 'hello sailor' ) // 1
@@ -82,10 +92,6 @@ be called at the begin of what you would like to time with a name or `Symbol` re
 what you are timing, and `timeEnd` should be called once the task has been completed with
 the same name. The time taken to complete the task will then be logged up to 1/1,000,000,000th
 of a second.
-
-It should be noted that `time` also returns a Timer object, which has a method `.end`,
-that can also be called to log the end time if you'd rather keep track of the timer itself
-than the name/symbol.
 
 ### count
 Takes a String, Symbol, or undefined as an argument, and then logs how many times `count`
