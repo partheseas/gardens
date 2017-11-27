@@ -7,38 +7,16 @@ let fs = require( 'fs' )
 let util = require( 'util' )
 
 let chalk = require( 'chalk' )
-let supportsColor = require( 'supports-color' )
 
 let configuration = {}
 
-class Timer {
-  constructor( garden, name ) {
-    this.garden = garden
-    this.name = name
-
-    // This is last, for performance
-    this.beginning = process.hrtime()
-  }
-
-  end() {
-    // This is first, for performance
-    let [ s, ns ] = process.hrtime( this.beginning )
-    this.garden._emit( 'timer', this.name, s, ns )
-
-    // Pad with the appropriate amount of zeros for logging
-    ns = '0'.repeat( 9 - ns.toString().length ) + ns
-
-    print( this.garden, `Timer:${this.name.toString()}`, `took ${s}.${ns} seconds` )
-  }
-}
-
 module.exports = class Garden extends events.EventEmitter {
-  constructor( name, verbose ) {
+  constructor( name, conf ) {
     // Make it an EventEmitter
     super()
 
+    Object.assign( this, conf )
     this.name = name
-    this.verbose = verbose
     this._times = {}
     this._counts = {}
 
@@ -138,12 +116,20 @@ module.exports = class Garden extends events.EventEmitter {
   }
 
   time( name = 'anonymous' ) {
-    return this._times[ name ] = new Timer( this, name )
+    return this._times[ name ] = process.hrtime()
   }
 
   timeEnd( name ) {
     if ( !this._times[ name ] ) return this.error( `.timeEnd was called with name ${name} before .time!` )
-    this._times[ name ].end()
+
+    let [ s, ns ] = process.hrtime( this._times[ name ] )
+    this._times[ name ] = null
+    this._emit( 'timer', name, s, ns )
+
+    // Pad with the appropriate amount of zeros for logging
+    ns = '0'.repeat( 9 - ns.toString().length ) + ns
+
+    print( this, `Timer:${name.toString()}`, `took ${s}.${ns} seconds` )
   }
 
   count( name = 'anonymous' ) {
@@ -155,7 +141,7 @@ module.exports = class Garden extends events.EventEmitter {
 let formats = module.exports.formats = {
   O: O => util.inspect( O ),
   o: o => util.inspect( o ).replace(/\s*\n\s*/g, ' '),
-  
+
 }
 
 let pretty = function ( message, format = 'O' ) {
