@@ -1,17 +1,36 @@
 # Gardens
 Gardens make it easier to trace the flow of your code by automatically printing
 the name of the space that you are logging from. For the most part a garden can
-be used interchangably with `console`.
+be used interchangeably with `console`.
 
 ## Usage
 ```JavaScript
-let gardens = require( 'gardens' )
+const gardens = require( 'gardens' )
 // -or-
-let Garden = require( 'gardens' )
+const Garden = require( 'gardens' )
 
 let garden = gardens.createGarden( 'example', conf: object )
 // -or-
 let garden2 = new Garden( '2nd example' )
+```
+
+### Configuration
+Configurations can be set globally, or per instance, and updated at any time.
+
+```JavaScript
+const gardens = require( 'gardens' )
+let example = gardens.createGarden( 'example' )
+
+let conf = {
+  'verbose': boolean,
+  'outputPath': string,
+  'timed': boolean
+}
+
+
+gardens.configure( conf ) // Globally
+gardens.createGarden( 'example', conf ) // Initial instance configuration
+example.configure( conf ) // Instance configuration update
 ```
 
 ### log, warn, and warning
@@ -33,8 +52,7 @@ the call will do nothing.
 The story for trace is similar, though it behaves more like `catch` than `log`, meaning
 that if it is verbose, it will print a call stack.
 ```JavaScript
-garden.verbose = true
-
+garden.configure({ verbose: true })
 garden.debug( 'interesting information!' )
 garden.trace( 'look at my call stack!' )
 ```

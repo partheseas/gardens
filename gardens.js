@@ -9,6 +9,10 @@ let util = require( 'util' )
 let chalk = require( 'chalk' )
 
 let configuration = {}
+let formats = {
+  O: O => util.inspect( O ),
+  o: o => util.inspect( o ).replace( /\s*\n\s*/g, ' ' )
+}
 
 module.exports = class Garden extends events.EventEmitter {
   constructor( name, conf ) {
@@ -24,20 +28,34 @@ module.exports = class Garden extends events.EventEmitter {
     for ( var i in name ) this.color += name.charCodeAt( i )
     this.color %= 199
     this.color += 25
-
-    console.log( chalk.ansi256( this.color )( this.name, this.color ) )
-  }
-
-  static configure( update ) {
-    return Object.assign( configuration, update )
   }
 
   static createGarden( ...conf ) {
     return new Garden( ...conf )
   }
 
+  static configure( update ) {
+    return Object.assign( configuration, update )
+  }
+
+  static get configuration() {
+    return configuration
+  }
+
+  static get formats() {
+    return formats
+  }
+
+  configure( update ) {
+    return Object.assign( this, update )
+  }
+
   isVerbose() {
     return this.verbose || configuration.verbose
+  }
+
+  isTimed() {
+    return this.timed || configuration.timed
   }
 
   _emit( event, ...said ) {
@@ -116,10 +134,10 @@ module.exports = class Garden extends events.EventEmitter {
   }
 
   time( name = 'anonymous' ) {
-    return this._times[ name ] = process.hrtime()
+    this._times[ name ] = process.hrtime()
   }
 
-  timeEnd( name ) {
+  timeEnd( name = 'anonymous', ...extra ) {
     if ( !this._times[ name ] ) return this.error( `.timeEnd was called with name ${name} before .time!` )
 
     let [ s, ns ] = process.hrtime( this._times[ name ] )
@@ -129,41 +147,58 @@ module.exports = class Garden extends events.EventEmitter {
     // Pad with the appropriate amount of zeros for logging
     ns = '0'.repeat( 9 - ns.toString().length ) + ns
 
-    print( this, `Timer:${name.toString()}`, `took ${s}.${ns} seconds` )
+    print( this, `time:${name.toString()}`, `took ${s}.${ns} seconds`, extra )
   }
 
-  count( name = 'anonymous' ) {
+  count( name = 'anonymous', ...extra ) {
     if ( !this._counts[ name ] ) this._counts[ name ] = 0
-    print( this, `Count:${name.toString()}`, ++this._counts[ name ] )
+    print( this, `count:${name.toString()}`, ++this._counts[ name ], extra )
   }
 }
 
-let formats = module.exports.formats = {
-  O: O => util.inspect( O ),
-  o: o => util.inspect( o ).replace(/\s*\n\s*/g, ' '),
-
-}
-
-let pretty = function ( message, format = 'O' ) {
+function format( message, format = 'O', color ) {
   if ( typeof formats[ format ] !== 'function' ) return console.error( new TypeError( `Invalid format '${format}'!` ) )
   return typeof message === 'string' ? message : formats[ format ]( message, { colors: true } )
 }
 
-let print = function ( garden, type, message, extra ) {
-  if ( typeof message === 'string' ) message = message.replace( /%([A-Za-z%])?/g, ( _, format ) => {
-    if ( extra.length ) return format === '%' ? '%' : pretty( extra.shift(), format )
-    return _
-  } )
+function diffString( garden ) {
+  let diff = garden._lastCall ? process.hrtime( garden._lastCall ) : [ 0, 0 ]
+  garden._lastCall = process.hrtime()
 
-  process.stdout.write( `${chalk.ansi256( garden.color )( `[${garden.name}][${type}]` )}  ${pretty( message ) }` )
-  extra.forEach( each => process.stdout.write( ' ' + pretty( each ) ) )
+  console.log( diff )
 
-  if ( configuration.outputPath ) fs.appendFile(
-    configuration.outputPath,
-    `[${new Date().toLocaleString()}][${name}][${type}]  ${pretty( message )}\n`,
-    'utf-8',
-    error => { if ( error ) console.error( error ) }
-  )
+  if ( diff[ 0 ] > 0 ) return `[+${diff[0]}s]`
+  if ( diff[ 1 ] > 1e6 ) return `[+${Math.floor(diff[1]/1e6)}ms]`
+  else return `[+${diff[1]}ns]`
+}
 
-  process.stdout.write( '\n' )
+function print( garden, type, message, extra ) {
+  if ( typeof message === 'string' ) {
+    message = message.replace( /%([A-Za-z%])?/g, ( original, type ) => {
+      if ( !extra.length ) return original
+      return format === '%' ? '%' : format( extra.shift(), type )
+    })
+  }
+
+  let diff = diffString( garden )
+
+  let packet = `${
+    chalk.ansi256( garden.color )( `[${garden.name}][${type}]${
+      garden.isTimed() ? diffString( garden ) : ''
+    }` )
+  }  ${format( message )}`
+
+  if ( Array.isArray( extra ) ) extra.forEach( each => packet += ' ' + format( each ) )
+  process.stdout.write( packet + '\n' )
+
+  void [ configuration.outputPath, garden.outputPath ].forEach( output => {
+    if ( typeof output === 'string' ) {
+      fs.appendFile(
+        output,
+        `[${new Date().toLocaleString()}][${garden.name}][${type}]  ${pretty( message )}\n`,
+        'utf-8',
+        error => { if ( error ) console.error( error ) }
+      )
+    }
+  })
 }
