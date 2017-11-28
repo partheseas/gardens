@@ -66,7 +66,7 @@ module.exports = class Garden extends events.EventEmitter {
   debug( message, ...extra ) {
     this._emit( 'debug', message, ...extra )
     if ( this.isVerbose() ) {
-      print( this, 'Debug', message, extra )
+      print( this, 'debug', message, extra )
       return true
     }
     return false
@@ -76,7 +76,7 @@ module.exports = class Garden extends events.EventEmitter {
     let error = new Error( message )
     this._emit( 'trace', error, ...extra )
     if ( this.isVerbose() ) {
-      print( this, 'Trace', message, extra )
+      print( this, 'trace', message, extra )
       console.log( error.stack )
       return true
     }
@@ -85,7 +85,7 @@ module.exports = class Garden extends events.EventEmitter {
 
   log( message, ...extra ) {
     this._emit( 'log', message, ...extra )
-    print( this, 'Log', message, extra )
+    print( this, 'log', message, extra )
   }
 
   info( ...details ) {
@@ -94,7 +94,7 @@ module.exports = class Garden extends events.EventEmitter {
 
   warning( message, ...extra ) {
     this._emit( 'warning', message, ...extra )
-    print( this, 'Warning', chalk.yellow( message ), extra )
+    print( this, 'warning', chalk.yellow( message ), extra )
   }
 
   warn( ...details ) {
@@ -104,7 +104,7 @@ module.exports = class Garden extends events.EventEmitter {
   error( message, ...extra ) {
     let error = new Error( message )
     this._emit( 'error', error, ...extra )
-    print( this, 'Error', chalk.red( message ), extra )
+    print( this, 'error', chalk.red( message ), extra )
     console.log( error.stack )
     return error
   }
@@ -112,7 +112,7 @@ module.exports = class Garden extends events.EventEmitter {
   typeerror( message, ...extra ) {
     let error = new TypeError( message )
     this._emit( 'typeerror', error, ...extra )
-    print( this, 'TypeError', chalk.red( message ), extra )
+    print( this, 'type error', chalk.red( message ), extra )
     console.log( error.stack )
     return error
   }
@@ -120,7 +120,7 @@ module.exports = class Garden extends events.EventEmitter {
   referenceerror( message, ...extra ) {
     let error = new ReferenceError( message )
     this._emit( 'referenceerror', error, ...extra )
-    print( this, 'ReferenceError', chalk.red( message ), extra )
+    print( this, 'reference error', chalk.red( message ), extra )
     console.log( error.stack )
     return error
   }
@@ -128,7 +128,7 @@ module.exports = class Garden extends events.EventEmitter {
   catch( error, ...extra ) {
     if ( !error.stack ) error = new Error( error )
     this._emit( 'catch', error, ...extra )
-    print( this, 'Caught Error', `${chalk.red( error.name )}: ${error.message}`, extra )
+    print( this, 'caught-error', `${chalk.red( error.name )}: ${error.message}`, extra )
     console.log( error.stack )
     return error
   }
@@ -164,8 +164,6 @@ function format( message, format = 'O', color ) {
 function diffString( garden ) {
   let diff = garden._lastCall ? process.hrtime( garden._lastCall ) : [ 0, 0 ]
   garden._lastCall = process.hrtime()
-
-  console.log( diff )
 
   if ( diff[ 0 ] > 0 ) return `[+${diff[0]}s]`
   if ( diff[ 1 ] > 1e6 ) return `[+${Math.floor(diff[1]/1e6)}ms]`
