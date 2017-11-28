@@ -46,7 +46,7 @@ garden.warning( 'also uhh oh' )
 
 ### debug and trace
 The debug method is similar to `log`, but it will only print if `garden.verbose` or
-`gardens.verbose` is set to true. If both of these are `undefined` or `null`ish then
+`gardens.configuration.verbose` is set to true. If both of these are `undefined` or `null`ish then
 the call will do nothing.
 
 The story for trace is similar, though it behaves more like `catch` than `log`, meaning
