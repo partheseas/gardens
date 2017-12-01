@@ -33,6 +33,14 @@ gardens.createGarden( 'example', conf ) // Initial instance configuration
 example.configure( conf ) // Instance configuration update
 ```
 
+#### autonaming
+Gardens can be named automatically by passing `__filename`
+```JavaScript
+// example.js contents
+// Create a garden named example
+let garden = gardens.auto( __filename )
+```
+
 ### log, warn, and warning
 These methods all just dump the arguments given out to the console like you would expect. The
 output is prefixed with the garden name and output type. (log or warning)

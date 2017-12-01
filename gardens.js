@@ -4,6 +4,7 @@
 
 let events = require( 'events' )
 let fs = require( 'fs' )
+let path = require( 'path' )
 let util = require( 'util' )
 
 let chalk = require( 'chalk' )
@@ -19,19 +20,25 @@ module.exports = class Garden extends events.EventEmitter {
     // Make it an EventEmitter
     super()
 
+    if ( !conf || !conf.color ) {
+      this.color = 0
+      for ( var i in name ) this.color += name.charCodeAt( i )
+      this.color %= 199
+      this.color += 25
+    }
+
     Object.assign( this, conf )
     this.name = name
     this._times = {}
     this._counts = {}
-
-    this.color = 0
-    for ( var i in name ) this.color += name.charCodeAt( i )
-    this.color %= 199
-    this.color += 25
   }
 
   static createGarden( ...conf ) {
     return new Garden( ...conf )
+  }
+
+  static auto( filename, ...conf ) {
+    return new Garden( path.basename( filename ), ...conf )
   }
 
   static configure( update ) {
@@ -181,7 +188,7 @@ function print( garden, type, message, extra ) {
   let diff = diffString( garden )
 
   let packet = `${
-    chalk.ansi256( garden.color )( `[${garden.name}][${type}]${
+    chalk.bold.ansi256( garden.color )( `[${garden.name}][${type}]${
       garden.isTimed() ? diffString( garden ) : ''
     }` )
   }  ${format( message )}`
