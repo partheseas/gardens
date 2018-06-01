@@ -2,208 +2,198 @@
 
 "use strict";
 
-let events = require( 'events' )
-let fs = require( 'fs' )
-let path = require( 'path' )
-let util = require( 'util' )
+const ow = require( 'ow' )
+const chalk = require( 'chalk' )
+const { supportsColor } = require( 'supports-color' )
+const { EventEmitter } = require( 'events' )
+const util = require( 'util' )
 
-let chalk = require( 'chalk' )
-
-let configuration = {}
-let formats = {
-  O: O => util.inspect( O ),
-  o: o => util.inspect( o ).replace( /\s*\n\s*/g, ' ' )
+let position = 0
+function hashyColor() {
+  return position++ % 199 + 25
 }
 
-module.exports = class Garden extends events.EventEmitter {
-  constructor( name, conf ) {
-    // Make it an EventEmitter
+class Garden extends EventEmitter {
+  constructor( scope, options ) {
+    // Construct EventEmitter
     super()
 
-    if ( !conf || !conf.color ) {
-      this.color = 0
-      for ( var i in name ) this.color += name.charCodeAt( i )
-      this.color %= 199
-      this.color += 25
-    }
+    if ( ow.isValid( scope, ow.string.not.empty ) ) scope = [ scope ]
+    else ow( scope, ow.any( ow.array.ofType( ow.string ), ow.nullOrUndefined ) )
 
-    Object.assign( this, conf )
-    this.name = name
-    this._times = {}
-    this._counts = {}
-  }
+    this.options = this._checkOptions( options )
+    this.stream = this.options.stream
+    this.options.scope = scope
 
-  static createGarden( ...conf ) {
-    return new Garden( ...conf )
-  }
+    this.chalk = chalk.constructor( supportsColor( stream ) )
+    this.secret = Symbol( 'secret' )
+    this._timers = {}
+    this._counters = {}
 
-  static auto( filename, ...conf ) {
-    return new Garden( path.basename( filename ), ...conf )
-  }
+    splatter( this, details => {
+      return function ( ...output ) {
+        if ( details.quiet && !this.options.verbose ) return;
+        if ( this.options.displayDate )
+          this.stream.write( this.chalk.gray( `[${new Date().toLocaleDateString()}] ` ) )
+        if ( this.options.displayTime )
+          this.stream.write( this.chalk.gray( `[${new Date().toLocaleTimeString()}] ` ) )
 
-  static configure( update ) {
-    return Object.assign( configuration, update )
-  }
+        if ( this.options.scope ) {
+          this.options.scope.forEach( scope => {
+            this.stream.write( this.options.scopeStyle( `[${scope}] ` ) )
+          })
+        }
 
-  static get configuration() {
-    return configuration
-  }
+        this.stream.write( `${details.icon}  ${details.style( details.label )}` )
 
-  static get formats() {
-    return formats
-  }
-
-  configure( update ) {
-    return Object.assign( this, update )
-  }
-
-  isVerbose() {
-    return this.verbose || configuration.verbose
-  }
-
-  isTimed() {
-    return this.timed || configuration.timed
-  }
-
-  _emit( event, ...said ) {
-    this.emit( event, ...said )
-    this.emit( 'print', ...said )
-  }
-
-  debug( message, ...extra ) {
-    this._emit( 'debug', message, ...extra )
-    if ( this.isVerbose() ) {
-      print( this, 'debug', message, extra )
-      return true
-    }
-    return false
-  }
-
-  trace( message, ...extra ) {
-    let error = new Error( message )
-    this._emit( 'trace', error, ...extra )
-    if ( this.isVerbose() ) {
-      print( this, 'trace', message, extra )
-      console.log( error.stack )
-      return true
-    }
-    return false
-  }
-
-  log( message, ...extra ) {
-    this._emit( 'log', message, ...extra )
-    print( this, 'log', message, extra )
-  }
-
-  info( ...details ) {
-    this.log( ...details )
-  }
-
-  warning( message, ...extra ) {
-    this._emit( 'warning', message, ...extra )
-    print( this, 'warning', chalk.yellow( message ), extra )
-  }
-
-  warn( ...details ) {
-    this.warning( ...details )
-  }
-
-  error( message, ...extra ) {
-    let error = new Error( message )
-    this._emit( 'error', error, ...extra )
-    print( this, 'error', chalk.red( message ), extra )
-    console.log( error.stack )
-    return error
-  }
-
-  typeerror( message, ...extra ) {
-    let error = new TypeError( message )
-    this._emit( 'typeerror', error, ...extra )
-    print( this, 'type error', chalk.red( message ), extra )
-    console.log( error.stack )
-    return error
-  }
-
-  referenceerror( message, ...extra ) {
-    let error = new ReferenceError( message )
-    this._emit( 'referenceerror', error, ...extra )
-    print( this, 'reference error', chalk.red( message ), extra )
-    console.log( error.stack )
-    return error
-  }
-
-  catch( error, ...extra ) {
-    if ( !error.stack ) error = new Error( error )
-    this._emit( 'catch', error, ...extra )
-    print( this, 'caught-error', `${chalk.red( error.name )}: ${error.message}`, extra )
-    console.log( error.stack )
-    return error
-  }
-
-  time( name = 'anonymous' ) {
-    this._times[ name ] = process.hrtime()
-  }
-
-  timeEnd( name = 'anonymous', ...extra ) {
-    if ( !this._times[ name ] ) return this.error( `.timeEnd was called with name ${name} before .time!` )
-
-    let [ s, ns ] = process.hrtime( this._times[ name ] )
-    this._times[ name ] = null
-    this._emit( 'timer', name, s, ns )
-
-    // Pad with the appropriate amount of zeros for logging
-    ns = '0'.repeat( 9 - ns.toString().length ) + ns
-
-    print( this, `time:${name.toString()}`, `took ${s}.${ns} seconds`, extra )
-  }
-
-  count( name = 'anonymous', ...extra ) {
-    if ( !this._counts[ name ] ) this._counts[ name ] = 0
-    print( this, `count:${name.toString()}`, ++this._counts[ name ], extra )
-  }
-}
-
-function format( message, format = 'O', color ) {
-  if ( typeof formats[ format ] !== 'function' ) return console.error( new TypeError( `Invalid format '${format}'!` ) )
-  return typeof message === 'string' ? message : formats[ format ]( message, { colors: true } )
-}
-
-function diffString( garden ) {
-  let diff = garden._lastCall ? process.hrtime( garden._lastCall ) : [ 0, 0 ]
-  garden._lastCall = process.hrtime()
-
-  if ( diff[ 0 ] > 0 ) return `[+${diff[0]}s]`
-  if ( diff[ 1 ] > 1e6 ) return `[+${Math.floor(diff[1]/1e6)}ms]`
-  else return `[+${diff[1]}ns]`
-}
-
-function print( garden, type, message, extra ) {
-  if ( typeof message === 'string' ) {
-    message = message.replace( /%([A-Za-z%])?/g, ( original, type ) => {
-      if ( !extra.length ) return original
-      return format === '%' ? '%' : format( extra.shift(), type )
+        this._genericf( ...output )
+      }
     })
   }
 
-  let diff = diffString( garden )
-
-  let packet = `${
-    chalk.bold.ansi256( garden.color )( `[${garden.name}][${type}]${
-      garden.isTimed() ? diffString( garden ) : ''
-    }` )
-  }  ${format( message )}`
-
-  if ( Array.isArray( extra ) ) extra.forEach( each => packet += ' ' + format( each ) )
-  process.stdout.write( packet + '\n' )
-
-  void [ configuration.outputPath, garden.outputPath ].forEach( output => {
-    if ( typeof output === 'string' ) {
-      fs.appendFile(
-        output,
-        `[${new Date().toLocaleString()}][${garden.name}][${type}]  ${pretty( message )}\n`,
-        'utf-8',
-        error => { if ( error ) console.error( error ) }
-      )
+  _checkOptions( options ) {
+    let checked = {
+      stream: process.stdout,
+      scopeStyle: chalk.ansi256( hashyColor() ),
+      verbose: false,
+      displayTime: false,
+      displayDate: false
     }
+
+    if ( ow.isValid( options, ow.nullOrUndefined ) ) return checked
+
+    ow( options, ow.object )
+
+    if ( options.stream && options.stream.write ) checked.stream = options.stream
+
+    if ( options.scopeStyle ) {
+      ow( options.scopeStyle, ow.function.label( 'colorizer' ) )
+      checked.scopeStyle = options.scopeStyle
+    }
+
+    if ( options.verbose )          checked.verbose = true
+    if ( options.displayDate )      checked.displayDate = true
+    if ( options.displayTime ) checked.displayTime = true
+
+    return checked
+  }
+
+  scope( name, options ) {
+    ow( name, ow.string )
+    let newScope = Array.from( this.options.scope || [] )
+    newScope.push( name )
+
+    return new Garden( newScope, options )
+  }
+
+  time( name, ...more ) {
+    ow( name, ow.any( ow.string, ow.symbol, ow.undefined ) )
+    if ( !name ) name = this.secret
+    if ( !this._timers[ name ] ) this._timers[ name ] = []
+    this._timers[ name ].push( process.hrtime() )
+
+    if ( more.length > 0 ) this._genericf( more )
+  }
+
+  timeEnd( name, ...more ) {
+    ow( name, ow.any( ow.string, ow.symbol, ow.undefined ) )
+    if ( !name ) name = this.secret
+    if ( !this._timers[ name ] ) this._timers[ name ] = []
+
+    this._timeEnd( this._timers[ name ].pop() )
+  }
+
+  count( name, ...more ) {
+    ow( name, ow.any( ow.string, ow.symbol, ow.undefined ) )
+    if ( !name ) name = this.secret
+    if ( !this._counters[ name ] ) this._counters[ name ] = 1
+    this._count( this._counters[ name ]++ )
+  }
+
+  _genericf( ...items ) {
+    items.forEach( item => {
+      this.stream.write( ` ${ow.isValid( item, ow.string ) ? item : util.inspect( item, { colors: this.chalk.enabled } )} ` )
+    })
+
+    this.stream.write( '\n' )
+  }
+}
+
+function splatter( garden, sprinkler ) {
+  let chalk = garden.chalk
+
+  let splats = {
+    'catch': {
+      style: chalk.red.underline,
+      thrower: error => error != null && error.stack ? error : new Error( error ),
+
+      icon: '🕸', label: 'caught' },
+
+    'complete': {
+      style: chalk.green,
+
+      icon: '✔', label: 'complete' },
+
+    'debug': {
+      quiet: true,
+      style: chalk.keyword('orange').underline,
+
+      icon: '☢', label: 'debug' },
+
+    'error': {
+      style: chalk.red.underline,
+      thrower: Error,
+
+      icon: '❌', label: 'error' },
+
+    'log': {
+      alias: 'info',
+      style: chalk.underline,
+
+      icon: '📃', label: '' },
+
+    'referenceerror': {
+      style: chalk.red.underline,
+      thrower: ReferenceError,
+
+      icon: '⁉', label: 'reference error' },
+
+    '_timeEnd': {
+      style: chalk.blue,
+
+      icon: '🕓', label: 'timed' },
+
+    '_count': {
+      style: chalk.blue,
+
+      icon: '💯', label: 'count' },
+
+    'trace': {
+      quiet: true,
+      style: chalk.red.underline,
+      thrower: Error,
+
+      icon: '🎯', label: 'trace' },
+
+    'typeerror': {
+      style: chalk.red.underline,
+      thrower: TypeError,
+
+      icon: '🦈', label: 'type error' },
+
+    'warn': {
+      alias: 'warning',
+      style: chalk.yellow.underline,
+
+      icon: '⚠', label: 'warning' }
+  }
+
+  Object.keys( splats ).forEach( splatName => {
+    let splat = splats[ splatName ]
+    garden[ splatName ] = sprinkler( splat )
+    if ( splat.alias ) garden[ splat.alias ] = garden[ splatName ]
   })
 }
+
+module.exports = new Garden()
+module.exports.default = module.exports
