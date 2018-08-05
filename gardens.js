@@ -110,9 +110,9 @@ class Garden {
   timeEnd( name = 'secret', ...extra ) {
     if ( !this._times[ name ] || !this._times[ name ].length ) return this.error( `.timeEnd was called with name ${name} before .time!` )
 
-    let [ s, ns ] = process.hrtime( this._times[ name ] ).pop()
+    let [ s, ns ] = process.hrtime( this._times[ name ].pop() )
     ns = '0'.repeat( 9 - ns.toString().length ) + ns // Pad with the appropriate amount of zeros
-    print( this, `time:${name.toString()}`, `took ${s}.${ns} seconds`, ...extra )
+    this._print( `time:${name.toString()}`, `took ${s}.${ns} seconds`, ...extra )
   }
 
   count( name = 'secret', ...extra ) {
