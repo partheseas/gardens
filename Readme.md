@@ -5,40 +5,18 @@ be used interchangeably with `console`.
 
 ## Usage
 ```JavaScript
-const gardens = require( 'gardens' )
-// -or-
-const Garden = require( 'gardens' )
-
-let garden = gardens.createGarden( 'example', conf: object )
-// -or-
-let garden2 = new Garden( '2nd example' )
+const garden = require( 'gardens' )
+const named = new garden.constructor( 'named garden!' )
 ```
 
 ### Configuration
 Configurations can be set globally, or per instance, and updated at any time.
 
 ```JavaScript
-const gardens = require( 'gardens' )
-let example = gardens.createGarden( 'example' )
-
-let conf = {
-  'verbose': boolean,
-  'outputPath': string,
-  'timed': boolean
-}
-
-
-gardens.configure( conf ) // Globally
-gardens.createGarden( 'example', conf ) // Initial instance configuration
-example.configure( conf ) // Instance configuration update
-```
-
-#### autonaming
-Gardens can be named automatically by passing `__filename`
-```JavaScript
-// example.js contents
-// Create a garden named example
-let garden = gardens.auto( __filename )
+garden.configure( {
+  'verbose': true,
+  'displayTime': true
+})
 ```
 
 ### log, warn, and warning
@@ -53,8 +31,8 @@ garden.warning( 'also uhh oh' )
 ```
 
 ### debug and trace
-The debug method is similar to `log`, but it will only print if `garden.verbose` or
-`gardens.configuration.verbose` is set to true. If both of these are `undefined` or `null`ish then
+The debug method is similar to `log`, but it will only print if
+`garden.options.verbose` is set to true. If this is `null`ish then
 the call will do nothing.
 
 The story for trace is similar, though it behaves more like `catch` than `log`, meaning
@@ -102,10 +80,12 @@ garden.timeEnd( tracker )
 Takes a String, Symbol, or undefined as an argument, and then logs how many times `count`
 has been called with that specific argument.
 ```JavaScript
+let secret = Symbol()
+
 garden.count() // 1
 garden.count() // 2
 garden.count( 'hello sailor' ) // 1
 garden.count( 'hello sailor' ) // 2
-garden.count( tracker ) // 1
-garden.count( tracker ) // 2
+garden.count( secret ) // 1
+garden.count( secret ) // 2
 ```
