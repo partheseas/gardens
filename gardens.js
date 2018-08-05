@@ -23,7 +23,7 @@ class Garden {
     }
 
     options && this._checkOptions( options )
-    
+
     this._times = {}
     this._counts = {}
   }
@@ -103,7 +103,7 @@ class Garden {
   }
 
   time( name = 'secret' ) {
-    if ( !this._timers[ name ] ) this._timers[ name ] = [ process.hrtime() ]
+    if ( !this._times[ name ] ) this._times[ name ] = [ process.hrtime() ]
     else this._times[ name ].push( process.hrtime() )
   }
 
