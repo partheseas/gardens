@@ -2,198 +2,144 @@
 
 "use strict";
 
-const ow = require( 'ow' )
-const chalk = require( 'chalk' )
-const { supportsColor } = require( 'supports-color' )
-const { EventEmitter } = require( 'events' )
+const fs = require( 'fs' )
+const path = require( 'path' )
 const util = require( 'util' )
+const chalk = require( 'chalk' )
 
-let position = 0
-function hashyColor() {
-  return position++ % 199 + 25
-}
+let scopeColor = 0
 
-class Garden extends EventEmitter {
+class Garden {
   constructor( scope, options ) {
-    // Construct EventEmitter
-    super()
+    if ( typeof scope !== 'string' && scope != null )
+      throw "new Garden( scope, options ): scope must be a string or undefined"
 
-    if ( ow.isValid( scope, ow.string.not.empty ) ) scope = [ scope ]
-    else ow( scope, ow.any( ow.array.ofType( ow.string ), ow.nullOrUndefined ) )
-
-    this.options = this._checkOptions( options )
-    this.stream = this.options.stream
-    this.options.scope = scope
-
-    this.chalk = chalk.constructor( supportsColor( stream ) )
-    this.secret = Symbol( 'secret' )
-    this._timers = {}
-    this._counters = {}
-
-    splatter( this, details => {
-      return function ( ...output ) {
-        if ( details.quiet && !this.options.verbose ) return;
-        if ( this.options.displayDate )
-          this.stream.write( this.chalk.gray( `[${new Date().toLocaleDateString()}] ` ) )
-        if ( this.options.displayTime )
-          this.stream.write( this.chalk.gray( `[${new Date().toLocaleTimeString()}] ` ) )
-
-        if ( this.options.scope ) {
-          this.options.scope.forEach( scope => {
-            this.stream.write( this.options.scopeStyle( `[${scope}] ` ) )
-          })
-        }
-
-        this.stream.write( `${details.icon}  ${details.style( details.label )}` )
-
-        this._genericf( ...output )
-      }
-    })
-  }
-
-  _checkOptions( options ) {
-    let checked = {
-      stream: process.stdout,
-      scopeStyle: chalk.ansi256( hashyColor() ),
+    this.options = {
+      stream: process.stdout, scope,
+      scopeStyle: chalk.ansi256( scopeColor++ % 199 + 25 ),
       verbose: false,
       displayTime: false,
       displayDate: false
     }
 
-    if ( ow.isValid( options, ow.nullOrUndefined ) ) return checked
+    options && this._checkOptions( options )
+    
+    this._times = {}
+    this._counts = {}
+  }
 
-    ow( options, ow.object )
+  configure( update ) {
+    return Object.assign( this.options, this._checkOptions( update ) )
+  }
 
-    if ( options.stream && options.stream.write ) checked.stream = options.stream
-
-    if ( options.scopeStyle ) {
-      ow( options.scopeStyle, ow.function.label( 'colorizer' ) )
-      checked.scopeStyle = options.scopeStyle
+  _checkOptions( update ) {
+    if ( update.stream && update.stream.write ) {
+      this.options.stream = update.stream
+      this.colorized = supportsColor( stream ).level
     }
 
-    if ( options.verbose )          checked.verbose = true
-    if ( options.displayDate )      checked.displayDate = true
-    if ( options.displayTime ) checked.displayTime = true
+    if ( update.scopeStyle && typeof update.scopeStyle === 'function' ) this.options.scopeStyle = update.scopeStyle
 
-    return checked
+    if ( update.verbose )     this.options.verbose = true
+    if ( update.displayDate ) this.options.displayDate = true
+    if ( update.displayTime ) this.options.displayTime = true
   }
 
-  scope( name, options ) {
-    ow( name, ow.string )
-    let newScope = Array.from( this.options.scope || [] )
-    newScope.push( name )
-
-    return new Garden( newScope, options )
+  debug( message, ...extra ) {
+    if ( this.options.verbose ) {
+      this._print( 'debug', message, extra )
+      return true
+    }
+    return false
   }
 
-  time( name, ...more ) {
-    ow( name, ow.any( ow.string, ow.symbol, ow.undefined ) )
-    if ( !name ) name = this.secret
-    if ( !this._timers[ name ] ) this._timers[ name ] = []
-    this._timers[ name ].push( process.hrtime() )
-
-    if ( more.length > 0 ) this._genericf( more )
+  trace( message, ...extra ) {
+    let error = new Error( message )
+    if ( this.options.verbose ) {
+      this._print( 'trace', message, extra )
+      return true
+    }
+    return false
   }
 
-  timeEnd( name, ...more ) {
-    ow( name, ow.any( ow.string, ow.symbol, ow.undefined ) )
-    if ( !name ) name = this.secret
-    if ( !this._timers[ name ] ) this._timers[ name ] = []
-
-    this._timeEnd( this._timers[ name ].pop() )
+  log( message, ...extra ) {
+    this._print( 'log', message, ...extra )
   }
 
-  count( name, ...more ) {
-    ow( name, ow.any( ow.string, ow.symbol, ow.undefined ) )
-    if ( !name ) name = this.secret
-    if ( !this._counters[ name ] ) this._counters[ name ] = 1
-    this._count( this._counters[ name ]++ )
+  info( ...details ) {
+    this.log( ...details )
   }
 
-  _genericf( ...items ) {
-    items.forEach( item => {
-      this.stream.write( ` ${ow.isValid( item, ow.string ) ? item : util.inspect( item, { colors: this.chalk.enabled } )} ` )
+  warning( message, ...extra ) {
+    this._print( 'warning', `${chalk.yellow(message)}`, ...extra )
+  }
+
+  warn( ...details ) {
+    this.warning( ...details )
+  }
+
+  error( message, ...extra ) {
+    let error = new Error( message )
+    this._print( 'error', `${message}\n${error.stack}\n`, ...extra )
+    return error
+  }
+
+  typeerror( message, ...extra ) {
+    let error = new TypeError( message )
+    this._print( 'typeerror', `${message}\n${error.stack}\n`, ...extra )
+    return error
+  }
+
+  referenceerror( message, ...extra ) {
+    let error = new ReferenceError( message )
+    this._print( 'referenceerror', `${message}\n${error.stack}\n`, ...extra )
+    return error
+  }
+
+  catch( error, ...extra ) {
+    if ( !error.stack ) error = new Error( error )
+    this._print( 'caught error', `${chalk.red(error.name)}: ${error.message}\n${error.stack}\n`, ...extra )
+    return error
+  }
+
+  time( name = 'secret' ) {
+    if ( !this._timers[ name ] ) this._timers[ name ] = [ process.hrtime() ]
+    else this._times[ name ].push( process.hrtime() )
+  }
+
+  timeEnd( name = 'secret', ...extra ) {
+    if ( !this._times[ name ] || !this._times[ name ].length ) return this.error( `.timeEnd was called with name ${name} before .time!` )
+
+    let [ s, ns ] = process.hrtime( this._times[ name ] ).pop()
+    ns = '0'.repeat( 9 - ns.toString().length ) + ns // Pad with the appropriate amount of zeros
+    print( this, `time:${name.toString()}`, `took ${s}.${ns} seconds`, ...extra )
+  }
+
+  count( name = 'secret', ...extra ) {
+    if ( !this._counts[ name ] ) this._counts[ name ] = 0
+    this._print( `count:${name.toString()}`, ++this._counts[ name ], ...extra )
+  }
+
+  _print( type, ...messages ) {
+    if ( this.options.scope )
+      this.options.stream.write( this.options.scopeStyle( `[${this.options.scope}]` ) )
+
+    this.options.stream.write( this.options.scopeStyle( `[${type}]` ) )
+
+    if ( this.options.displayDate )
+      this.options.stream.write( chalk.gray( `[${new Date().toLocaleDateString()}]` ) )
+    if ( this.options.displayTime )
+      this.options.stream.write( chalk.gray( `[${new Date().toLocaleTimeString()}]` ) )
+
+    messages.forEach( each => {
+      this.options.stream.write( ` ${ typeof each === 'string' ? each : util.inspect( each, { colors: supportsColor } )}` )
     })
 
-    this.stream.write( '\n' )
+    this.options.stream.write( '\n' )
   }
 }
 
-function splatter( garden, sprinkler ) {
-  let chalk = garden.chalk
 
-  let splats = {
-    'catch': {
-      style: chalk.red.underline,
-      thrower: error => error != null && error.stack ? error : new Error( error ),
-
-      icon: '🕸', label: 'caught' },
-
-    'complete': {
-      style: chalk.green,
-
-      icon: '✔', label: 'complete' },
-
-    'debug': {
-      quiet: true,
-      style: chalk.keyword('orange').underline,
-
-      icon: '☢', label: 'debug' },
-
-    'error': {
-      style: chalk.red.underline,
-      thrower: Error,
-
-      icon: '❌', label: 'error' },
-
-    'log': {
-      alias: 'info',
-      style: chalk.underline,
-
-      icon: '📃', label: '' },
-
-    'referenceerror': {
-      style: chalk.red.underline,
-      thrower: ReferenceError,
-
-      icon: '⁉', label: 'reference error' },
-
-    '_timeEnd': {
-      style: chalk.blue,
-
-      icon: '🕓', label: 'timed' },
-
-    '_count': {
-      style: chalk.blue,
-
-      icon: '💯', label: 'count' },
-
-    'trace': {
-      quiet: true,
-      style: chalk.red.underline,
-      thrower: Error,
-
-      icon: '🎯', label: 'trace' },
-
-    'typeerror': {
-      style: chalk.red.underline,
-      thrower: TypeError,
-
-      icon: '🦈', label: 'type error' },
-
-    'warn': {
-      alias: 'warning',
-      style: chalk.yellow.underline,
-
-      icon: '⚠', label: 'warning' }
-  }
-
-  Object.keys( splats ).forEach( splatName => {
-    let splat = splats[ splatName ]
-    garden[ splatName ] = sprinkler( splat )
-    if ( splat.alias ) garden[ splat.alias ] = garden[ splatName ]
-  })
-}
 
 module.exports = new Garden()
 module.exports.default = module.exports
