@@ -15,7 +15,8 @@ class Garden {
       throw "new Garden( scope, options ): scope must be a string or undefined"
 
     this.options = {
-      stream: process.stdout, scope,
+      stream: process.stdout,
+      scope,
       scopeStyle: chalk.ansi256( scopeColor++ % 199 + 25 ),
       verbose: false,
       displayTime: false,
@@ -30,6 +31,10 @@ class Garden {
 
   configure( update ) {
     return Object.assign( this.options, this._checkOptions( update ) )
+  }
+
+  createScope( ...options ) {
+    return new Garden( ...options )
   }
 
   _checkOptions( update ) {

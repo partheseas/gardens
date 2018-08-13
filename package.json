@@ -1,7 +1,7 @@
 {
   "name": "gardens",
-  "version": "3.0.2",
-  "description": "Seperate your console logging and error output into gardens for better debugging.",
+  "version": "3.1.0",
+  "description": "Keep your logging organized and know where your output is coming from.",
   "main": "gardens.js",
   "repository": {
     "type": "git",
