@@ -30,7 +30,7 @@ class Garden {
   }
 
   configure( update ) {
-    return Object.assign( this.options, this._checkOptions( update ) )
+    this._checkOptions( update )
   }
 
   createScope( ...options ) {
@@ -117,12 +117,12 @@ class Garden {
 
     let [ s, ns ] = process.hrtime( this._times[ name ].pop() )
     ns = '0'.repeat( 9 - ns.toString().length ) + ns // Pad with the appropriate amount of zeros
-    this._print( `time:${name.toString()}`, `took ${s}.${ns} seconds`, ...extra )
+    this._print( name.toString(), `took ${s}.${ns} seconds`, ...extra )
   }
 
   count( name = 'secret', ...extra ) {
     if ( !this._counts[ name ] ) this._counts[ name ] = 0
-    this._print( `count:${name.toString()}`, ++this._counts[ name ], ...extra )
+    this._print( name.toString(), `++this._counts[ name ] times`, ...extra )
   }
 
   _print( type, ...messages ) {
