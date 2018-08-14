@@ -122,7 +122,7 @@ class Garden {
 
   count( name = 'secret', ...extra ) {
     if ( !this._counts[ name ] ) this._counts[ name ] = 0
-    this._print( name.toString(), `++this._counts[ name ] times`, ...extra )
+    this._print( name.toString(), `${++this._counts[ name ]} times`, ...extra )
   }
 
   _print( type, ...messages ) {
