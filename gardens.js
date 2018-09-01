@@ -102,7 +102,7 @@ class Garden {
   }
 
   catch( error, ...extra ) {
-    if ( !error.stack ) error = new Error( error )
+    if ( !error || !error.stack ) error = new Error( error )
     this._print( 'caught error', `${chalk.red(error.name)}: ${error.message}\n${error.stack}\n`, ...extra )
     return error
   }
