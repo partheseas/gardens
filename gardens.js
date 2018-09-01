@@ -137,7 +137,7 @@ class Garden {
       this.options.stream.write( chalk.gray( `[${new Date().toLocaleTimeString()}]` ) )
 
     messages.forEach( each => {
-      this.options.stream.write( ` ${ typeof each === 'string' ? each : util.inspect( each, { colors: supportsColor } )}` )
+      this.options.stream.write( ` ${ typeof each === 'string' ? each : util.inspect( each, { colors: chalk.supportsColor.hasBasic } )}` )
     })
 
     this.options.stream.write( '\n' )
