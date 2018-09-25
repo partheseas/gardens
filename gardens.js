@@ -2,7 +2,6 @@
 
 "use strict";
 
-const fs = require( 'fs' )
 const path = require( 'path' )
 const util = require( 'util' )
 const chalk = require( 'chalk' )
@@ -15,7 +14,7 @@ class Garden {
       throw "new Garden( scope, options ): scope must be a string or undefined"
 
     this.options = {
-      stream: process.stdout,
+      stream: typeof process.stdout === 'undefined' ? { write: console.log } : process.stdout,
       scope,
       scopeStyle: chalk.ansi256( scopeColor++ % 199 + 25 ),
       verbose: false,
@@ -126,21 +125,25 @@ class Garden {
   }
 
   _print( type, ...messages ) {
-    if ( this.options.scope )
-      this.options.stream.write( this.options.scopeStyle( `[${this.options.scope}]` ) )
+    let output = ''
 
-    this.options.stream.write( this.options.scopeStyle( `[${type}]` ) )
+    if ( this.options.scope )
+      output += this.options.scopeStyle( `[${this.options.scope}]` )
+
+    output += this.options.scopeStyle( `[${type}]` )
 
     if ( this.options.displayDate )
-      this.options.stream.write( chalk.gray( `[${new Date().toLocaleDateString()}]` ) )
+      output += chalk.gray( `[${new Date().toLocaleDateString()}]` )
     if ( this.options.displayTime )
-      this.options.stream.write( chalk.gray( `[${new Date().toLocaleTimeString()}]` ) )
+      output += chalk.gray( `[${new Date().toLocaleTimeString()}]` )
 
     messages.forEach( each => {
-      this.options.stream.write( ` ${ typeof each === 'string' ? each : util.inspect( each, { colors: chalk.supportsColor.hasBasic } )}` )
+      output += ` ${ typeof each === 'string' ? each : util.inspect( each, { colors: chalk.supportsColor.hasBasic } )}`
     })
 
-    this.options.stream.write( '\n' )
+    output += '\n'
+
+    this.options.stream.write( output )
   }
 }
 
@@ -148,3 +151,4 @@ class Garden {
 
 module.exports = new Garden()
 module.exports.default = module.exports
+module.exports.version = require( './package.json' ).version

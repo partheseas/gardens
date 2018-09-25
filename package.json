@@ -1,6 +1,6 @@
 {
   "name": "gardens",
-  "version": "3.1.4",
+  "version": "3.2.0",
   "description": "Keep your logging organized and know where your output is coming from.",
   "main": "gardens.js",
   "repository": {
