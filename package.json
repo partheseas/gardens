@@ -1,8 +1,8 @@
 {
   "name": "gardens",
-  "version": "3.2.0",
+  "version": "4.0.0",
   "description": "Keep your logging organized and know where your output is coming from.",
-  "main": "gardens.js",
+  "main": "dist/gardens.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/partheseas/gardens.git"
@@ -21,6 +21,10 @@
   "author": "Kayla Washburn",
   "license": "MIT",
   "dependencies": {
-    "chalk": "^2.4.1"
+    "chalk": "^2.4.1",
+    "supports-color": "^5.5.0"
+  },
+  "devDependencies": {
+    "rollup": "^0.66.6"
   }
 }
