@@ -1,7 +1,7 @@
 # Gardens
-Gardens make it easier to trace the flow of your code by automatically printing
-the name of the space that you are logging from. For the most part a garden can
-be used interchangeably with `console`.
+Gardens make it easier to trace the flow of your code by always printing
+the name of the scope that you are logging from. A garden can be used interchangeably
+with `console`, and will work in Node and all modern browsers.
 
 ## Usage
 ```JavaScript
