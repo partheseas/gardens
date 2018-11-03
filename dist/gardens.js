@@ -1,12 +1,11 @@
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('util'), require('chalk'), require('supports-color'), require('perf_hooks')) :
-  typeof define === 'function' && define.amd ? define(['util', 'chalk', 'supports-color', 'perf_hooks'], factory) :
-  (global.gardens = factory(global.util,global.chalk,global.supportsColor,global.perf));
-}(this, (function (util,chalk,supportsColor,perf) { 'use strict';
+  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('util'), require('chalk'), require('perf_hooks')) :
+  typeof define === 'function' && define.amd ? define(['util', 'chalk', 'perf_hooks'], factory) :
+  (global.gardens = factory(global.util,global.chalk,global.perf));
+}(this, (function (util,chalk,perf) { 'use strict';
 
   util = util && util.hasOwnProperty('default') ? util['default'] : util;
   chalk = chalk && chalk.hasOwnProperty('default') ? chalk['default'] : chalk;
-  supportsColor = supportsColor && supportsColor.hasOwnProperty('default') ? supportsColor['default'] : supportsColor;
   perf = perf && perf.hasOwnProperty('default') ? perf['default'] : perf;
 
   // MIT License / Copyright Kayla Washburn 2017
@@ -54,20 +53,22 @@
   }
 
   class Garden {
-    constructor( scope, options ) {
+    constructor( scope, options, _super ) {
       let fallback = { write: console.log };
 
+      this._super = _super;
+
       this.options = {
-        stream: environment.node
+        stream: ( this._super && this._super.options.stream ) || ( environment.node
           ? process.stdout
-          : fallback,
+          : fallback ),
         scope,
         scopeStyle: {
           color: scope && colorize( scope )
         },
-        verbose: false,
-        displayTime: false,
-        displayDate: false
+        verbose: this._super && this._super.options.verbose,
+        displayTime: this._super && this._super.options.displayTime,
+        displayDate: this._super && this._super.options.displayDate
       };
 
       options && this._checkOptions( options );
@@ -82,23 +83,24 @@
     }
 
     createScope( scope, options ) {
-      if ( typeof scope !== 'string' )
+      if ( typeof scope !== 'string' && scope != null )
         throw new Error( 'scope must be a string or undefined' )
 
       // This would be the ideal syntax, but it hasn't landed in Edge yet.
       // Ugh.
       // return new Garden( scope, {
+      //   ...this.options,
       //   ...options,
       //   _superScope: this
       // })
 
-      return new Garden( scope, Object.assign({ _superScope: this }, options ))
+      return new Garden( scope, options, this )
     }
 
     _checkOptions( update ) {
       if ( update.stream && update.stream.write ) {
         this.options.stream = update.stream;
-        this.colorized = supportsColor( stream ).level;
+        // this.colorized = supportsColor( update.stream ).hasBasic
       }
 
       if ( update._superScope ) this.options._superScope = update._superScope;
@@ -213,8 +215,8 @@
 
     _scopePrefix() {
       // this.options.scopes.forEach( scope => output.push(  ) )
-      let prefix = this.options._superScope
-        ? this.options._superScope._scopePrefix()
+      let prefix = this._super
+        ? this._super._scopePrefix()
         : [];
 
       if ( this.options.scope ) prefix.push( this._style( `[${this.options.scope}]`, this.options.scopeStyle ) );
@@ -284,7 +286,7 @@
             raw.push( part.raw );
             allRaw = true;
           } else if ( environment.node ) {
-            text += ` ${util.inspect( part.raw, { colors: chalk.supportsColor.hasBasic } )}`;
+            text += ` ${util.inspect( part.raw, { colors: this.options.colorized } )}`;
           }
         } else if ( part.text ) {
           if ( allRaw ) raw.push( part.text );

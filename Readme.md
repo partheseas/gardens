@@ -6,16 +6,21 @@ be used interchangeably with `console`.
 ## Usage
 ```JavaScript
 const garden = require( 'gardens' )
-const named = new garden.constructor( 'named garden!' )
+const named = new garden.createScope( 'named garden!' )
 ```
 
 ### Configuration
-Configurations can be set globally, or per instance, and updated at any time.
+Configurations can be set per instance, and updated at any time.
 
 ```JavaScript
-garden.configure( {
-  'verbose': true,
-  'displayTime': true
+garden.configure({
+  scopeStyle: {
+    color: '#abacat',
+    fontWeight: 700
+  },
+  verbose: true,
+  displayDate: true,
+  displayTime: true
 })
 ```
 
@@ -88,4 +93,16 @@ garden.count( 'hello sailor' ) // 1
 garden.count( 'hello sailor' ) // 2
 garden.count( secret ) // 1
 garden.count( secret ) // 2
+```
+
+### assert and assert_eq
+Two assert functions are also provided for the sake of completeness. They both behave
+as you would expect. Additional arguments can be passed to provide additional details
+on what was expected, and possibly why the assert fails.
+```JavaScript
+garden.assert( true, 'Expected to be true' ) // Does nothing
+garden.assert( false, 'Expected to be true' ) // Throws
+
+garden.assert_eq( 1, 1, 'Expect 1 to equal 1', stateOfSomethingRelated ) // Does nothing
+garden.assert_eq( 1, 2, 'Expect 1 to equal 2', stateOfSomethingRelated ) // Throws
 ```

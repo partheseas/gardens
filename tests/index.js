@@ -1,18 +1,15 @@
 const defaultGarden = require( 'gardens' )
 // const defaultGarden = gardens
 
-const timedGarden = defaultGarden.createScope( 'timed', {
+const customGarden = defaultGarden.createScope( 'customized', {
   displayTime: true,
-  displayDate: true
-})
-
-const coloredGarden = defaultGarden.createScope( 'color', {
+  displayDate: true,
   scopeStyle: {
     color: '#2d65c4'
   }
 })
 
-const nestedGarden = coloredGarden.createScope( 'nested', {
+const nestedGarden = customGarden.createScope( 'nested', {
   scopeStyle: {
     color: '#393ac1'
   }
@@ -22,7 +19,7 @@ const verboseGarden = defaultGarden.createScope( 'verbose' ).configure({
   verbose: true
 })
 
-let list = [ defaultGarden, timedGarden, coloredGarden, nestedGarden, verboseGarden ]
+let list = [ defaultGarden, customGarden, nestedGarden, verboseGarden ]
 
 function waitToEnd( garden, name ) {
   return new Promise( fulfill => setTimeout(() => {
