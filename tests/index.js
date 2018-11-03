@@ -38,7 +38,13 @@ let obj = {
 }
 
 function testGardens( index = 0 ) {
-  if ( index >= list.length ) return defaultGarden.info( 'Done! Tests probably passed!' )
+  if ( index >= list.length ) {
+    defaultGarden.log( 'Done! Tests probably passed!' )
+    defaultGarden.info( 'Note that seeing errors above does not indicate a fail.' )
+    defaultGarden.info( 'Some tests are designed to check error handling behavior.' )
+    return
+  }
+
   let garden = list[ index ]
 
   let test = new Promise( async next => {

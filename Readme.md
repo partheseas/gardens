@@ -106,3 +106,8 @@ garden.assert( false, 'Expected to be true' ) // Throws
 garden.assert_eq( 1, 1, 'Expect 1 to equal 1', stateOfSomethingRelated ) // Does nothing
 garden.assert_eq( 1, 2, 'Expect 1 to equal 2', stateOfSomethingRelated ) // Throws
 ```
+
+### v3 vs v4
+- options.scopeStyle now expects a CSS-style object, not a function
+- catch, error, typeerror, and referenceerror no longer log unless verbose is set
+in order to reduce duplicates if the error is also thrown

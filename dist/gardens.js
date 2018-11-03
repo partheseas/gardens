@@ -86,14 +86,6 @@
       if ( typeof scope !== 'string' && scope != null )
         throw new Error( 'scope must be a string or undefined' )
 
-      // This would be the ideal syntax, but it hasn't landed in Edge yet.
-      // Ugh.
-      // return new Garden( scope, {
-      //   ...this.options,
-      //   ...options,
-      //   _superScope: this
-      // })
-
       return new Garden( scope, options, this )
     }
 
@@ -131,8 +123,8 @@
       this._print({ type: 'log' }, message, ...extra );
     }
 
-    info( ...details ) {
-      this.log( ...details );
+    info( message, ...extra ) {
+      this._print({ type: 'info' }, message, ...extra );
     }
 
     warning( message, ...extra ) {
@@ -155,31 +147,31 @@
 
     error( message, ...extra ) {
       let error = new Error( message );
-      this._print({ type: 'error', style: { color: '#ff1212' } }, `${message}\n${error.stack}\n`, ...extra );
+      if ( this.options.verbose ) this._print({ type: 'error', style: { color: '#ff1212' } }, `${message}\n${error.stack}\n`, ...extra );
       return error
     }
 
     typeerror( message, ...extra ) {
       let error = new TypeError( message );
-      this._print({ type: 'type error', style: { color: '#ff1212' } }, `${message}\n${error.stack}\n`, ...extra );
+      if ( this.options.verbose ) this._print({ type: 'type error', style: { color: '#ff1212' } }, `${message}\n${error.stack}\n`, ...extra );
       return error
     }
 
     referenceerror( message, ...extra ) {
       let error = new ReferenceError( message );
-      this._print({ type: 'reference error', style: { color: '#ff1212' } }, `${message}\n${error.stack}\n`, ...extra );
+      if ( this.options.verbose ) this._print({ type: 'reference error', style: { color: '#ff1212' } }, `${message}\n${error.stack}\n`, ...extra );
       return error
     }
 
     assertionerror( message, ...extra ) {
       let error = new Error( message );
-      this._print({ type: 'assertion error', style: { color: '#ff1212' } }, `${message}\n${error.stack}\n`, ...extra );
+      if ( this.options.verbose ) this._print({ type: 'assertion error', style: { color: '#ff1212' } }, `${message}\n${error.stack}\n`, ...extra );
       return error
     }
 
     catch( error, ...extra ) {
       if ( !error || !error.stack ) error = new Error( error );
-      this._print({ type: 'caught error', style: { color: '#ff1212' } }, `${error.name}: ${error.message}\n${error.stack}\n`, ...extra );
+      if ( this.options.verbose ) this._print({ type: 'caught error', style: { color: '#ff1212' } }, `${error.name}: ${error.message}\n${error.stack}\n`, ...extra );
       return error
     }
 
@@ -196,10 +188,6 @@
         this.warn( `.timeEnd was called for ${name.toString()} without a corresponding .time!` );
         return
       }
-
-      // let [ s, ns ] = process.hrtime( this._times[ name ].pop() )
-      // ns = '0'.repeat( 9 - ns.toString().length ) + ns // Pad with the appropriate amount of zeros
-      // this._print({ type: name.toString() }, `took ${s}.${ns} seconds`, ...extra )
 
       let ms = environment.performance.now() - this._times[ name ].pop();
       this._print({ type: name.toString() }, `took ${ms} milliseconds`, ...extra);
