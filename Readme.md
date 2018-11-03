@@ -35,6 +35,10 @@ garden.warn( 'uhh oh' )
 garden.warning( 'also uhh oh' )
 ```
 
+### raw
+Passes all given arguments directly to the stream (or console), without scopes, time stamps, or
+any formatting. As the name implies, it just prints raw data.
+
 ### debug and trace
 The debug method is similar to `log`, but it will only print if
 `garden.options.verbose` is set to true. If this is `null`ish then

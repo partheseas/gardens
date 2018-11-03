@@ -48,9 +48,11 @@ function testGardens( index = 0 ) {
   let garden = list[ index ]
 
   let test = new Promise( async next => {
+    garden.raw( '\n\n\n' )
+
+    garden.info( `Beginning test #${index+1}.` )
+    garden.log( 'Object ->', obj, '<- there' )
     garden.debug( 'Hello debug sailor?' )
-    garden.log( 'Hello sailor.' )
-    garden.info( 'Hello', obj, 'there' )
     garden.warning( 'Hello warning!' )
     garden.warn( 'Hello warn!', '\n' )
 
@@ -58,14 +60,23 @@ function testGardens( index = 0 ) {
     garden.count()
     garden.count()
 
-    garden.count( 'Hello number' )
-    garden.count( 'Hello number' )
-    garden.count( 'Hello number', '\n' )
+    garden.raw( '\n' )
 
-    let secret = Symbol( 'count' )
+    garden.count( 'sailors' )
+    garden.count( 'sailors' )
+    garden.count( 'sailors' )
+
+    garden.raw( '\n' )
+
+    let secret = Symbol( 'sailors' )
     garden.count( secret )
     garden.count( secret )
-    garden.count( secret, '\n' )
+    garden.count( secret )
+
+    garden.raw( '\n' )
+
+    garden.time( '333ms' )
+    await waitToEnd( garden, '333ms' )
 
     let immediate = Symbol( 'immediate' )
     garden.time( immediate )
@@ -74,8 +85,7 @@ function testGardens( index = 0 ) {
     garden.timeEnd( immediate )
     garden.timeEnd( immediate ) // Should only throw warning on third time
 
-    garden.time( '1/3 second' )
-    await waitToEnd( garden, '1/3 second' )
+    garden.raw( '\n' )
 
     garden.trace( 'This should trace, but only when verbose' )
 
@@ -97,7 +107,7 @@ function testGardens( index = 0 ) {
     try {
       garden.assert_eq( 1, 2 )
     } catch ( err ) {
-      garden.catch( err, '\n\n\n' )
+      garden.catch( err )
     }
 
     next()
@@ -106,4 +116,5 @@ function testGardens( index = 0 ) {
   test.then(() => testGardens( ++index ) )
 }
 
+defaultGarden.info( 'Warming up for tests' )
 testGardens()

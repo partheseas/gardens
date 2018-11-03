@@ -106,28 +106,32 @@ class Garden {
     if ( a !== b ) throw this.assertionerror( `Assert failed! ${a} is not equal to ${b}`, ...extra )
   }
 
-  debug( message, ...extra ) {
+  debug( ...messages ) {
     if ( this.options.verbose ) {
-      this._print({ type: 'debug' }, message, ...extra )
+      this._print({ type: 'debug' }, ...messages )
       return true
     }
     return false
   }
 
-  log( message, ...extra ) {
-    this._print({ type: 'log' }, message, ...extra )
+  raw( ...messages ) {
+    messages.forEach( message => this.options.stream.write( message ) )
   }
 
-  info( message, ...extra ) {
-    this._print({ type: 'info' }, message, ...extra )
+  log( ...messages ) {
+    this._print({ type: 'log' }, ...messages )
   }
 
-  warning( message, ...extra ) {
-    this._print({ type: 'warning', style: { color: '#ecb448' } }, message, ...extra )
+  info( ...messages ) {
+    this._print({ type: 'info' }, ...messages )
   }
 
-  warn( ...details ) {
-    this.warning( ...details )
+  warning( ...messages ) {
+    this._print({ type: 'warning', style: { color: '#ecb448' } }, ...messages )
+  }
+
+  warn( ...messages ) {
+    this.warning( ...messages )
   }
 
   trace( message, ...extra ) {
@@ -178,22 +182,22 @@ class Garden {
     else this._times[ name ].push( environment.performance.now() )
   }
 
-  timeEnd( name = 'time', ...extra ) {
+  timeEnd( name = 'time', ...messages ) {
     if ( !this._times[ name ] || !this._times[ name ].length ) {
-      this.warn( `.timeEnd was called for ${name.toString()} without a corresponding .time!` )
+      this.warn( `\`.timeEnd\` was called for ${name.toString()} without a corresponding \`.time\`!` )
       return
     }
 
     let ms = environment.performance.now() - this._times[ name ].pop()
-    this._print({ type: name.toString() }, `took ${ms} milliseconds`, ...extra)
+    this._print({ type: name.toString() }, `took ${ms} milliseconds`, ...messages )
   }
 
-  count( name = 'count', ...extra ) {
+  count( name = 'count', ...messages ) {
     if ( !this._counts[ name ] ) this._counts[ name ] = 0
     let count = ++this._counts[ name ]
     let pluralOrSingular = count === 1 ? 'time': 'times'
 
-    this._print({ type: name.toString() }, `${count} ${pluralOrSingular}`, ...extra )
+    this._print({ type: name.toString() }, `${count} ${pluralOrSingular}`, ...messages )
   }
 
   _scopePrefix() {
@@ -274,10 +278,11 @@ class Garden {
       } else if ( part.text ) {
         if ( allRaw ) raw.push( part.text )
         else if ( part.format != null ) {
-          text += '%c'
+          text += `%c${part.text}`
           formats.push( part.format )
+        } else {
+          text += part.text
         }
-        text += `${part.text}`
       }
     })
 
@@ -287,4 +292,4 @@ class Garden {
   }
 }
 
-export default new Garden()
+export default Object.assign( new Garden(), { environment } )
