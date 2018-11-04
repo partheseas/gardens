@@ -35,13 +35,13 @@
     : 'console';
 
   function colorize( scope ) {
-    let r = 75;
-    let g = 75;
-    let b = 75;
+    let r = 50;
+    let g = 50;
+    let b = 50;
 
-    for ( let char of scope ) {
-      b = b * ( scope.charCodeAt( char ) ** 12 ) % 125 + 75;
-      [ g, b, r ] = [ r, g, b ];
+    for ( let char in scope ) {
+      r = r * ( scope.charCodeAt( char ) ** 12 ) % 175 + 50;
+      [ b, r, g ] = [ r, g, b ];
     }
 
     return `#${r.toString(16)}${g.toString(16)}${b.toString(16)}`
