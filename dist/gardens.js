@@ -1,11 +1,12 @@
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('util'), require('chalk'), require('perf_hooks')) :
-  typeof define === 'function' && define.amd ? define(['util', 'chalk', 'perf_hooks'], factory) :
-  (global.gardens = factory(global.util,global.chalk,global.perf));
-}(this, (function (util,chalk,perf) { 'use strict';
+  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('util'), require('chalk'), require('supports-color'), require('perf_hooks')) :
+  typeof define === 'function' && define.amd ? define(['util', 'chalk', 'supports-color', 'perf_hooks'], factory) :
+  (global.gardens = factory(global.util,global.chalk,global.color,global.perf));
+}(this, (function (util,chalk,color,perf) { 'use strict';
 
   util = util && util.hasOwnProperty('default') ? util['default'] : util;
   chalk = chalk && chalk.hasOwnProperty('default') ? chalk['default'] : chalk;
+  color = color && color.hasOwnProperty('default') ? color['default'] : color;
   perf = perf && perf.hasOwnProperty('default') ? perf['default'] : perf;
 
   // MIT License / Copyright Kayla Washburn 2017
@@ -29,6 +30,10 @@
   if ( !environment.performance )
     console.warn( 'Performance metrics are not available. `time` and `timeEnd` will not function.' );
 
+  environment.defaultOutputType = environment.node
+    ? color.stdout.hasBasic ? 'ansi' : 'text'
+    : 'console';
+
   function colorize( scope ) {
     let r = 75;
     let g = 75;
@@ -42,7 +47,13 @@
     return `#${r.toString(16)}${g.toString(16)}${b.toString(16)}`
   }
 
-  function toCssString( style ) {
+  function toString( from, fallback ) {
+    return from != null && typeof from.toString === 'function'
+      ? from.toString()
+      : fallback
+  }
+
+  function css( style ) {
     return style ? `${
   Object.keys( style ).map( prop => `${
     prop.replace(/[A-Z]/g, char => `-${
@@ -62,6 +73,7 @@
         stream: ( this._super && this._super.options.stream ) || ( environment.node
           ? process.stdout
           : fallback ),
+        outputType: ( this._super && this._super.options.outputType ) || environment.defaultOutputType,
         scope,
         scopeStyle: {
           color: scope && colorize( scope )
@@ -92,8 +104,10 @@
     _checkOptions( update ) {
       if ( update.stream && update.stream.write ) {
         this.options.stream = update.stream;
-        // this.colorized = supportsColor( update.stream ).hasBasic
+        this.outputType = 'text';
       }
+
+      if ( update.outputType ) this.options.outputType = update.outputType;
 
       if ( update._superScope ) this.options._superScope = update._superScope;
       if ( update.scopeStyle ) Object.assign( this.options.scopeStyle, update.scopeStyle );
@@ -113,7 +127,7 @@
 
     debug( ...messages ) {
       if ( this.options.verbose ) {
-        this._print({ type: 'debug' }, ...messages );
+        this._print({ type: 'debug', style: { color: '#ff8800' } }, ...messages );
         return true
       }
       return false
@@ -128,7 +142,7 @@
     }
 
     info( ...messages ) {
-      this._print({ type: 'info' }, ...messages );
+      this._print({ type: 'info', style: { color: '#242f91' }  }, ...messages );
     }
 
     warning( ...messages ) {
@@ -151,25 +165,25 @@
 
     error( message, ...extra ) {
       let error = new Error( message );
-      if ( this.options.verbose ) this._print({ type: 'error', style: { color: '#ff1212' } }, `${message}\n${error.stack}\n`, ...extra );
+      this._print({ type: 'error', style: { color: '#ff1212' } }, `${message}\n${error.stack}\n`, ...extra );
       return error
     }
 
     typeerror( message, ...extra ) {
       let error = new TypeError( message );
-      if ( this.options.verbose ) this._print({ type: 'type error', style: { color: '#ff1212' } }, `${message}\n${error.stack}\n`, ...extra );
+      this._print({ type: 'type error', style: { color: '#ff1212' } }, `${message}\n${error.stack}\n`, ...extra );
       return error
     }
 
     referenceerror( message, ...extra ) {
       let error = new ReferenceError( message );
-      if ( this.options.verbose ) this._print({ type: 'reference error', style: { color: '#ff1212' } }, `${message}\n${error.stack}\n`, ...extra );
+      this._print({ type: 'reference error', style: { color: '#ff1212' } }, `${message}\n${error.stack}\n`, ...extra );
       return error
     }
 
     assertionerror( message, ...extra ) {
       let error = new Error( message );
-      if ( this.options.verbose ) this._print({ type: 'assertion error', style: { color: '#ff1212' } }, `${message}\n${error.stack}\n`, ...extra );
+      this._print({ type: 'assertion error', style: { color: '#ff1212' } }, `${message}\n${error.stack}\n`, ...extra );
       return error
     }
 
@@ -179,39 +193,47 @@
       return error
     }
 
-    time( name = 'time' ) {
+    time( name ) {
       if ( arguments.length > 1 ) this.warn( '`.time` should only take one argument. Pass additional arguments to `.timeEnd`.' );
-      if ( !environment.performance ) thiw.warn( 'Performance metrics are not available. `time` and `timeEnd` will not function.' );
+      if ( !environment.performance ) return this.warn( 'Performance metrics are not available. `time` and `timeEnd` will not function.' )
+
+      if ( name == null ) name = null;
 
       if ( !this._times[ name ] ) this._times[ name ] = [ environment.performance.now() ];
       else this._times[ name ].push( environment.performance.now() );
     }
 
-    timeEnd( name = 'time', ...messages ) {
+    timeEnd( name, ...messages ) {
+      // Count undefined and null both as null
+      if ( name == null ) name = null;
+
       if ( !this._times[ name ] || !this._times[ name ].length ) {
-        this.warn( `\`.timeEnd\` was called for ${name.toString()} without a corresponding \`.time\`!` );
+        this.warn( `\`.timeEnd\` was called for ${toString( name, 'null' )} without a corresponding \`.time\`!` );
         return
       }
 
       let ms = environment.performance.now() - this._times[ name ].pop();
-      this._print({ type: name.toString() }, `took ${ms} milliseconds`, ...messages );
+      this._print({ type: toString( name, 'time' ) }, `took ${ms} milliseconds`, ...messages );
     }
 
-    count( name = 'count', ...messages ) {
+    count( name, ...messages ) {
+      // Count undefined and null both as null
+      if ( name == null ) name = null;
+
       if ( !this._counts[ name ] ) this._counts[ name ] = 0;
       let count = ++this._counts[ name ];
       let pluralOrSingular = count === 1 ? 'time': 'times';
 
-      this._print({ type: name.toString() }, `${count} ${pluralOrSingular}`, ...messages );
+      this._print({ type: toString( name, 'count' ) }, `${count} ${pluralOrSingular}`, ...messages );
     }
 
-    _scopePrefix() {
+    _scopePrefix( outputType = this.options.outputType ) {
       // this.options.scopes.forEach( scope => output.push(  ) )
       let prefix = this._super
-        ? this._super._scopePrefix()
+        ? this._super._scopePrefix( outputType )
         : [];
 
-      if ( this.options.scope ) prefix.push( this._style( `[${this.options.scope}]`, this.options.scopeStyle ) );
+      if ( this.options.scope ) prefix.push( this._style( `[${this.options.scope}]`, this.options.scopeStyle, outputType ) );
       return prefix
     }
 
@@ -234,8 +256,8 @@
       this.options.stream.write( ...this._transform( output ) );
     }
 
-    _style( text, style ) {
-      if ( environment.node ) {
+    _style( text, style, outputType = this.options.outputType ) {
+      if ( outputType ==='ansi' ) {
         let wrap = chalk;
         if ( style ) {
           if ( style.color ) wrap = wrap.hex( style.color );
@@ -245,13 +267,16 @@
           text: wrap( text ),
           format: null
         }
-      } else if ( environment.browser ) {
+      } else if ( outputType === 'console' || outputType === 'html' ) {
         return {
           text,
-          format: toCssString( style )
+          format: css( style )
         }
       } else {
-        console.error( `Garden doesn't support this environment!` );
+        return {
+          text,
+          format: null
+        }
       }
     }
 
@@ -273,25 +298,46 @@
       let allRaw = false;
 
       output.forEach( part => {
-        if ( part.raw ) {
-          if ( environment.browser ) {
+        if ( 'raw' in part ) {
+          if ( this.options.outputType === 'console' ) {
             raw.push( part.raw );
             allRaw = true;
-          } else if ( environment.node ) {
-            text += ` ${util.inspect( part.raw, { colors: this.options.colorized } )}`;
+            return
+          } else if ( this.options.outputType === 'ansi' ) {
+            part.text = environment.node
+              ? ` ${util.inspect( part.raw, { colors: true } )}`
+              : ` ${part.raw.toString()}`;
+          } else if ( this.options.outputType === 'html' || this.options.outputType === 'text' ) {
+            part.text = environment.node
+              ? ` ${util.inspect( part.raw )}`
+              : ` ${part.raw.toString()}`;
           }
-        } else if ( part.text ) {
-          if ( allRaw ) raw.push( part.text );
-          else if ( part.format != null ) {
-            text += `%c${part.text}`;
-            formats.push( part.format );
+        }
+
+        if ( 'text' in part ) {
+          if ( this.options.outputType === 'console' ) {
+            if ( allRaw ) raw.push( part.text );
+            else if ( part.format != null ) {
+              text += `%c${part.text}`;
+              formats.push( part.format );
+            } else {
+              text += part.text;
+            }
+          } else if ( this.options.outputType === 'html' ) {
+            text += `<span${ part.format ? ` style="${part.format}"` : '' }>${
+            // We replace spaces with &nbsp;, but only if there is more than one
+            part.text
+              .replace( / {2,}/g, spaces => spaces.replace( / /g, '&nbsp;' ) )
+              .replace( /\n/g, '<br />' )
+          }</span>`;
           } else {
             text += part.text;
           }
         }
       });
 
-      if ( environment.node ) text += '\n';
+      if ( this.options.outputType === 'ansi' || this.options.outputType === 'text' ) text += '\n';
+      if ( this.options.outputType === 'html' ) text += '<br />';
 
       return [ text, ...formats, ...raw ]
     }

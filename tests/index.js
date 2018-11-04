@@ -39,6 +39,7 @@ let obj = {
 
 function testGardens( index = 0 ) {
   if ( index >= list.length ) {
+    defaultGarden.raw( '\n\n' )
     defaultGarden.log( 'Done! Tests probably passed!' )
     defaultGarden.info( 'Note that seeing errors above does not indicate a fail.' )
     defaultGarden.info( 'Some tests are designed to check error handling behavior.' )
@@ -58,18 +59,15 @@ function testGardens( index = 0 ) {
 
     garden.count()
     garden.count()
-    garden.count()
+    garden.count( null, 'Should be the same counter as the two above' )
 
-    garden.raw( '\n' )
+    garden.count( 'count', 'Should start at 1' )
+    garden.count( 'count', 'because it uses a string' )
 
-    garden.count( 'sailors' )
-    garden.count( 'sailors' )
-    garden.count( 'sailors' )
+    garden.count( 2 )
+    garden.count( 2 )
 
-    garden.raw( '\n' )
-
-    let secret = Symbol( 'sailors' )
-    garden.count( secret )
+    let secret = Symbol( 'sailor' )
     garden.count( secret )
     garden.count( secret )
 
@@ -77,6 +75,9 @@ function testGardens( index = 0 ) {
 
     garden.time( '333ms' )
     await waitToEnd( garden, '333ms' )
+
+    garden.time( 3 )
+    garden.timeEnd( 3 )
 
     let immediate = Symbol( 'immediate' )
     garden.time( immediate )

@@ -10,12 +10,15 @@ const named = new garden.createScope( 'named garden!' )
 ```
 
 ### Configuration
-Configurations can be set per instance, and updated at any time.
+Configurations can be set per instance, and updated at any time. Each garden
+has the following options.
 
 ```JavaScript
 garden.configure({
+  stream: WrittableStream,
+  outputType: 'ansi' || 'console' || 'html' || 'text',
   scopeStyle: {
-    color: '#abacat',
+    color: '#34dfcb',
     fontWeight: 700
   },
   verbose: true,
@@ -23,6 +26,15 @@ garden.configure({
   displayTime: true
 })
 ```
+
+### Configuring streams
+For the sake of being easy to use in browser with custom outputs, each garden only
+cares that the stream given in its options implements a `write` method. One such
+browserland object that already implements a write function is `document`, but I
+would not recommend that, because it erases the previous contents, which is sad.
+
+When setting a stream other than the default, the `outputType` is always set to
+text to keep things simple. If you want colors, be sure to set this option correctly.
 
 ### log, warn, and warning
 These methods all just dump the arguments given out to the console like you would expect. The
