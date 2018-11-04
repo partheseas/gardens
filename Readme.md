@@ -1,6 +1,7 @@
 # Gardens
 Gardens make it easier to trace the flow of your code by always printing
-the name of the scope that you are logging from. A garden can be used interchangeably
+the name of the scope that you are logging from. It supports nested scopes, custom colors,
+time stamps, HTML output, and many other fun things! A garden can be used interchangeably
 with `console`, and will work in Node and all modern browsers.
 
 ![macOS Screenshot](/media/gardens.png)
