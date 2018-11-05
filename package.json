@@ -1,24 +1,17 @@
 {
   "name": "gardens",
   "version": "4.0.0",
-  "description": "Keep your logging organized and know where your output is coming from.",
+  "description": "A useful logging utility for JavaScript everywhere.",
   "main": "dist/gardens.js",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/partheseas/gardens.git"
-  },
+  "repository": "partheseas/gardens",
   "keywords": [
     "error",
     "tracking",
-    "errors",
-    "tracing",
-    "stack",
-    "trace",
+    "lgging",
     "debugging",
-    "utilities",
     "utility"
   ],
-  "author": "Kayla Washburn",
+  "author": "McKayla Washburn",
   "license": "MIT",
   "dependencies": {
     "chalk": "^2.4.1",

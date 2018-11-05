@@ -6,6 +6,12 @@ with `console`, and will work in Node and all modern browsers.
 
 ![macOS Screenshot](/media/gardens.png)
 
+## Installation
+```Shell
+npm install weave
+```
+or just download a .zip and throw it into a node_modules folder somewhere.
+
 ## Usage
 ```JavaScript
 const garden = require( 'gardens' )
