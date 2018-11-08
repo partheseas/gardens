@@ -7,11 +7,11 @@ export default [{
     sourcemap: true
   }
 }, {
-  input: 'tests/main.js',
+  input: 'tests/index.js',
   output: {
     format: 'umd',
-    file: 'tests/wrapped.js',
-    name: 'testGardens',
+    file: 'tests/rollup.js',
+    name: 'tests',
     sourcemap: true,
     globals: {
       'gardens': 'gardens'

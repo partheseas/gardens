@@ -1,8 +1,8 @@
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('gardens')) :
-  typeof define === 'function' && define.amd ? define(['gardens'], factory) :
-  (global.testGardens = factory(global.gardens));
-}(this, (function (defaultGarden) { 'use strict';
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('gardens')) :
+  typeof define === 'function' && define.amd ? define(['exports', 'gardens'], factory) :
+  (factory((global.tests = {}),global.gardens));
+}(this, (function (exports,defaultGarden) { 'use strict';
 
   defaultGarden = defaultGarden && defaultGarden.hasOwnProperty('default') ? defaultGarden['default'] : defaultGarden;
 
@@ -40,9 +40,7 @@
 
     let secret = Symbol( 'sailor' );
     garden.count( secret );
-    garden.count( secret );
-
-    garden.raw( '\n' );
+    garden.count( secret, '\n' );
 
     garden.time( '333ms' );
     await waitToEnd( garden, '333ms' );
@@ -55,9 +53,7 @@
     garden.time( immediate );
     garden.timeEnd( immediate );
     garden.timeEnd( immediate );
-    garden.timeEnd( immediate ); // Should only throw warning on third time
-
-    garden.raw( '\n' );
+    garden.timeEnd( immediate, '\n' ); // Should only throw warning on third time
 
     garden.trace( 'This should trace, but only when verbose' );
 
@@ -104,7 +100,33 @@
     })
   }
 
-  return testGardens;
+  function index () {
+    const customGarden = defaultGarden.createScope( 'customized', {
+      displayTime: true,
+      displayDate: true,
+      scopeStyle: {
+        color: '#2d65c4',
+        fontWeight: 700
+      }
+    });
+
+    const nestedGarden = customGarden.createScope( 'nested', {
+      scopeStyle: {
+        color: '#393ac1'
+      }
+    });
+
+    const verboseGarden = defaultGarden.createScope( 'verbose' ).configure({
+      verbose: true
+    });
+
+    testGardens( defaultGarden, customGarden, nestedGarden, verboseGarden );
+  }
+
+  exports.testGardens = testGardens;
+  exports.default = index;
+
+  Object.defineProperty(exports, '__esModule', { value: true });
 
 })));
-//# sourceMappingURL=wrapped.js.map
+//# sourceMappingURL=rollup.js.map
