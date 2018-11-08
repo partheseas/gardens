@@ -208,7 +208,7 @@
       if ( name == null ) name = null;
 
       if ( !this._times[ name ] || !this._times[ name ].length ) {
-        this.warn( `\`.timeEnd\` was called for ${toString( name, 'null' )} without a corresponding \`.time\`!` );
+        this.warn( `\`.timeEnd\` was called for ${toString( name, 'null' )} without a corresponding \`.time\`!`, ...messages );
         return
       }
 
