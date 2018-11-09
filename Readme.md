@@ -14,8 +14,12 @@ or just download a .zip and throw it into a node_modules folder somewhere.
 
 ## Usage
 ```JavaScript
-const garden = require( 'gardens' )
-const named = garden.createScope( 'named garden!' )
+// CommonJS
+const gardens = require( 'gardens' )
+// ESModules
+import gardens from 'gardens'
+
+const named = gardens.createScope( 'named garden!' )
 ```
 
 ### Configuration
