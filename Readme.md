@@ -120,16 +120,26 @@ garden.count( secret ) // 1
 garden.count( secret ) // 2
 ```
 
-### assert and assert_eq
-Two assert functions are also provided for the sake of completeness. They both behave
-as you would expect. Additional arguments can be passed to provide additional details
-on what was expected, and possibly why the assert fails.
+### assert, assert_eq, and deny
+Four assert functions are also provided for the sake of completeness. `assert`
+and `assert_eq` behave as you would expect. `deny` is basically `assert` but for
+things that should be falsey. `throws` takes a function that should throw, and will
+throw if it doesn't, but will catch the error if it does. Additional arguments can
+be passed to provide additional details on what was expected, and possibly why
+the assert fails.
 ```JavaScript
 garden.assert( true, 'Expected to be true' ) // Does nothing
 garden.assert( false, 'Expected to be true' ) // Throws
 
 garden.assert_eq( 1, 1, 'Expect 1 to equal 1', stateOfSomethingRelated ) // Does nothing
 garden.assert_eq( 1, 2, 'Expect 1 to equal 2', stateOfSomethingRelated ) // Throws
+
+garden.deny( false, 'Expected to be false' ) // Does nothing
+garden.deny( true, 'Expected to be false' ) // Throws
+
+let variableThatDoesExist = true
+garden.throws( () => someUndefinedVariable ) // Does nothing
+garden.throws( () => variableThatDoesExist ) // Throws
 ```
 
 ### v3 vs v4

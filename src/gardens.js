@@ -112,11 +112,25 @@ class Garden {
   }
 
   assert( truthy, ...extra ) {
-    if ( !truthy ) throw this.assertionerror( `Assert failed! ${truthy} is not truthy!`, ...extra )
+    if ( !truthy ) throw this.assertionerror( `${truthy} is not truthy!`, ...extra )
   }
 
   assert_eq( a, b, ...extra ) {
-    if ( a !== b ) throw this.assertionerror( `Assert failed! ${a} is not equal to ${b}`, ...extra )
+    if ( a !== b ) throw this.assertionerror( `${a} is not equal to ${b}!`, ...extra )
+  }
+
+  deny( falsey, ...extra ) {
+    if ( falsey ) throw this.assertionerror( `${falsey} is not falsey!`, ...extra )
+  }
+
+  throws( throws, ...extra ) {
+    try {
+      throws()
+    } catch ( error ) {
+      return
+    }
+
+    throw this.assertionerror( `Function didn't throw!`, ...extra )
   }
 
   debug( ...messages ) {
@@ -177,7 +191,7 @@ class Garden {
 
   assertionerror( message, ...extra ) {
     let error = new Error( message )
-    this._print({ type: 'assertion error', style: { color: '#ff1212' } }, `${message}\n${error.stack}\n`, ...extra )
+    this._print({ type: 'assertion error', style: { color: '#ff1212' } }, `Assert failed! ${message}\n${error.stack}\n`, ...extra )
     return error
   }
 

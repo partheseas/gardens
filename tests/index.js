@@ -58,13 +58,14 @@ async function runTest( garden, next ) {
   garden.catch( 'This should create an error' )
 
   garden.assert( true )
+  garden.throws( () => garden.assert( false ) )
   garden.assert_eq( 1, 1 )
-
-  try { garden.assert( false ) }
-  catch ( err ) { garden.catch( err ) }
-
-  try { garden.assert_eq( 1, 2 ) }
-  catch ( err ) { garden.catch( err ) }
+  garden.throws( () => garden.assert_eq( 1, 2 ) )
+  garden.deny( false )
+  garden.throws( () => garden.deny( true ) )
+  // There's no problem with adding two numbers and returning so the inner check
+  // will throw. Because that throws, the outer check will catch it and continue.
+  garden.throws( () => garden.throws( () => 1 + 2 ) )
 
   next()
 }
@@ -77,15 +78,15 @@ export function testGardens( ...gardens ) {
   return new Promise( ( fulfill, reject ) => {
     function iterate( index ) {
       defaultGarden.raw( '\n\n' )
-      defaultGarden.info( `Beginning test #${index+1}.\n` )
+      defaultGarden.log( `Beginning test #${index+1}\n` )
 
       runTest( gardens[ index ], () => {
         if ( ++index < gardens.length ) return iterate( index )
 
         defaultGarden.raw( '\n\n' )
         defaultGarden.log( 'Done! Tests probably passed!' )
-        defaultGarden.info( 'Note that seeing errors above does not indicate a fail.' )
-        defaultGarden.info( 'Some tests are designed to check error handling behavior.' )
+        defaultGarden.info( 'Note that seeing errors above does not indicate a fail' )
+        defaultGarden.info( 'Some tests are designed to check error handling behavior' )
         fulfill()
       })
     }
