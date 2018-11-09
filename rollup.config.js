@@ -1,5 +1,6 @@
 export default [{
   input: 'src/gardens.js',
+  external: [ 'chalk', 'perf_hooks', 'supports-color', 'util' ],
   output: {
     format: 'umd',
     file: 'dist/gardens.js',
@@ -8,6 +9,7 @@ export default [{
   }
 }, {
   input: 'tests/index.js',
+  external: [ 'gardens' ],
   output: {
     format: 'umd',
     file: 'tests/rollup.js',
@@ -15,6 +17,7 @@ export default [{
     sourcemap: true,
     globals: {
       'gardens': 'gardens'
-    }
+    },
+    exports: 'named'
   }
 }]
