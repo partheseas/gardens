@@ -8,14 +8,14 @@ with `console`, and will work in Node and all modern browsers.
 
 ## Installation
 ```Shell
-npm install weave
+npm install gardens
 ```
 or just download a .zip and throw it into a node_modules folder somewhere.
 
 ## Usage
 ```JavaScript
 const garden = require( 'gardens' )
-const named = new garden.createScope( 'named garden!' )
+const named = garden.createScope( 'named garden!' )
 ```
 
 ### Configuration
@@ -120,7 +120,7 @@ garden.count( secret ) // 1
 garden.count( secret ) // 2
 ```
 
-### assert, assert_eq, and deny
+### assert and friends
 Four assert functions are also provided for the sake of completeness. `assert`
 and `assert_eq` behave as you would expect. `deny` is basically `assert` but for
 things that should be falsey. `throws` takes a function that should throw, and will
@@ -142,7 +142,5 @@ garden.throws( () => someUndefinedVariable ) // Does nothing
 garden.throws( () => variableThatDoesExist ) // Throws
 ```
 
-### v3 vs v4
-- options.scopeStyle now expects a CSS-style object, not a function
-- catch, error, typeerror, and referenceerror no longer log unless verbose is set
-in order to reduce duplicates if the error is also thrown
+### v4 breaking changes
+- options.scopeStyle now expects a CSS-style object, not a chalk function
