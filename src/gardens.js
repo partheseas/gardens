@@ -268,8 +268,11 @@ class Garden {
     if ( outputType ==='ansi' ) {
       let wrap = chalk
       if ( style ) {
+        if ( style.backgroundColor ) wrap = wrap.bgHex( style.backgroundColor )
         if ( style.color ) wrap = wrap.hex( style.color )
         if ( style.fontWeight > 400 ) wrap = wrap.bold
+        if ( style.fontStyle === 'italic' ) wrap = wrap.italic
+        if ( style.textDecoration === 'underline' ) wrap = wrap.underline
       }
       return {
         text: wrap( text ),

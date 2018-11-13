@@ -26,6 +26,11 @@ const named = gardens.createScope( 'named garden!' )
 Configurations can be set per instance, and updated at any time. Each garden
 has the following options.
 
+Note: The `scopeStyle` option is used to configure the style of the scope name when printed.
+In Node it supports the `backgroundColor`, `color`, `fontStyle`, `fontWeight`, and `textDecoration`
+CSS properties. Support on the browser should technically be any CSS property, but
+the exact implementation depends on the implementation of the browser itself.
+
 ```JavaScript
 garden.configure({
   stream: WrittableStream,

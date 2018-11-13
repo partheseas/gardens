@@ -106,8 +106,13 @@
       displayTime: true,
       displayDate: true,
       scopeStyle: {
-        color: '#2d65c4',
-        fontWeight: 700
+        backgroundColor: '#474747',
+        borderRadius: '3px',
+        color: '#a0bef2',
+        fontWeight: 700,
+        fontStyle: 'italic',
+        padding: '0.15em',
+        textDecoration: 'underline'
       }
     });
 
