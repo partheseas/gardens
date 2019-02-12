@@ -159,6 +159,10 @@
       this._print({ type: 'info', style: { color: '#242f91' }  }, ...messages );
     }
 
+    success( ...messages ) {
+      this._print({ type: 'success', style: { color: '#40a456' } }, ...messages );
+    }
+
     warning( ...messages ) {
       this._print({ type: 'warning', style: { color: '#ecb448' } }, ...messages );
     }
@@ -242,7 +246,6 @@
     }
 
     _scopePrefix( outputType = this.options.outputType ) {
-      // this.options.scopes.forEach( scope => output.push(  ) )
       let prefix = this._super
         ? this._super._scopePrefix( outputType )
         : [];
@@ -310,8 +313,8 @@
 
       // In the browser we preserve raw objects to preserve interactive inspection.
       // (Think of the expand/collapse arrows in pretty much ever browser's DevTools.)
-      // After one raw object, we must treat them all as raw, or strings may be
-      // printed in the wrong order, which is non-deterministic and bad.
+      // After one raw object, we must treat them all as raw, or things may be
+      // printed in the wrong order, which is bad.
       let allRaw = false;
 
       output.forEach( part => {

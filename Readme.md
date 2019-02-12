@@ -54,13 +54,14 @@ would not recommend that, because it erases the previous contents, which is sad.
 When setting a stream other than the default, the `outputType` is always set to
 text to keep things simple. If you want colors, be sure to set this option correctly.
 
-### log, warn, and warning
+### log, info, success, warn, and warning
 These methods all just dump the arguments given out to the console like you would expect. The
 output is prefixed with the garden name and output type. (log or warning)
 ```JavaScript
 // These are all for general logging
 garden.log( 'message' )
 garden.info( 'new message' )
+garden.success( 'yay!' )
 garden.warn( 'uhh oh' )
 garden.warning( 'also uhh oh' )
 ```

@@ -23,7 +23,11 @@
   };
 
   async function runTest( garden, next ) {
-    garden.log( 'Object ->', obj, '<- there' );
+    garden.log( true );
+    garden.log( 4 );
+    garden.log( obj );
+    garden.log( 'Object', obj, 'Boolean', true );
+    garden.success( 'Hello champion!' );
     garden.debug( 'Hello debug sailor?' );
     garden.warning( 'Hello warning!' );
     garden.warn( 'Hello warn!', '\n' );
@@ -71,7 +75,7 @@
     garden.throws( () => garden.deny( true ) );
     // There's no problem with adding two numbers and returning so the inner check
     // will throw. Because that throws, the outer check will catch it and continue.
-    garden.throws( () => garden.throws( () => 1 + 2 ) );
+    garden.throws( () => garden.throws( () => true ) );
 
     next();
   }
@@ -90,7 +94,7 @@
           if ( ++index < gardens.length ) return iterate( index )
 
           defaultGarden.raw( '\n\n' );
-          defaultGarden.log( 'Done! Tests probably passed!' );
+          defaultGarden.success( 'Done! Tests probably passed!' );
           defaultGarden.info( 'Note that seeing errors above does not indicate a fail' );
           defaultGarden.info( 'Some tests are designed to check error handling behavior' );
           fulfill();

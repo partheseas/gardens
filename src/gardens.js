@@ -1,9 +1,9 @@
 // MIT License / Copyright Kayla Washburn 2017
 
-import util from 'util'
 import chalk from 'chalk'
 import color from 'supports-color'
 import perf from 'perf_hooks'
+import util from 'util'
 
 let environment = {
   node: typeof process !== 'undefined'
@@ -16,11 +16,13 @@ let environment = {
     : perf && perf.performance
 }
 
-// If we don't appear to be in Node or a browser, complain
+// If we don't appear to be in Node or a browser, complain.
+// If we appear to be in both, that is also bad. That's why we
+// use ^ instead of ||.
 if ( !( environment.node ^ environment.browser ) )
   throw new Error( 'Gardens cannot determine the current environment, or does not support it.' )
 
-// If we are unable to get performance hooks, warn that the feature is broken
+// If we are unable to get performance hooks, warn that the feature is broken.
 if ( !environment.performance )
   console.warn( 'Performance metrics are not available. `time` and `timeEnd` will not function.' )
 
@@ -153,6 +155,10 @@ class Garden {
     this._print({ type: 'info', style: { color: '#242f91' }  }, ...messages )
   }
 
+  success( ...messages ) {
+    this._print({ type: 'success', style: { color: '#40a456' } }, ...messages )
+  }
+
   warning( ...messages ) {
     this._print({ type: 'warning', style: { color: '#ecb448' } }, ...messages )
   }
@@ -236,7 +242,6 @@ class Garden {
   }
 
   _scopePrefix( outputType = this.options.outputType ) {
-    // this.options.scopes.forEach( scope => output.push(  ) )
     let prefix = this._super
       ? this._super._scopePrefix( outputType )
       : []
@@ -304,8 +309,8 @@ class Garden {
 
     // In the browser we preserve raw objects to preserve interactive inspection.
     // (Think of the expand/collapse arrows in pretty much ever browser's DevTools.)
-    // After one raw object, we must treat them all as raw, or strings may be
-    // printed in the wrong order, which is non-deterministic and bad.
+    // After one raw object, we must treat them all as raw, or things may be
+    // printed in the wrong order, which is bad.
     let allRaw = false
 
     output.forEach( part => {
