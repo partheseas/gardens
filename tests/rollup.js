@@ -1,8 +1,8 @@
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('gardens')) :
   typeof define === 'function' && define.amd ? define(['exports', 'gardens'], factory) :
-  (factory((global.tests = {}),global.gardens));
-}(this, (function (exports,defaultGarden) { 'use strict';
+  (global = global || self, factory(global.tests = {}, global.gardens));
+}(this, function (exports, defaultGarden) { 'use strict';
 
   defaultGarden = defaultGarden && defaultGarden.hasOwnProperty('default') ? defaultGarden['default'] : defaultGarden;
 
@@ -73,7 +73,7 @@
     garden.throws( () => garden.assert_eq( 1, 2 ) );
     garden.deny( false );
     garden.throws( () => garden.deny( true ) );
-    // There's no problem with adding two numbers and returning so the inner check
+    // There's no problem with just returning a boolean so the inner check
     // will throw. Because that throws, the outer check will catch it and continue.
     garden.throws( () => garden.throws( () => true ) );
 
@@ -138,5 +138,5 @@
 
   Object.defineProperty(exports, '__esModule', { value: true });
 
-})));
+}));
 //# sourceMappingURL=rollup.js.map

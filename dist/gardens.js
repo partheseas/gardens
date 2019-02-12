@@ -1,13 +1,13 @@
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('util'), require('chalk'), require('supports-color'), require('perf_hooks')) :
-  typeof define === 'function' && define.amd ? define(['util', 'chalk', 'supports-color', 'perf_hooks'], factory) :
-  (global.gardens = factory(global.util,global.chalk,global.color,global.perf));
-}(this, (function (util,chalk,color,perf) { 'use strict';
+  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('chalk'), require('supports-color'), require('perf_hooks'), require('util')) :
+  typeof define === 'function' && define.amd ? define(['chalk', 'supports-color', 'perf_hooks', 'util'], factory) :
+  (global = global || self, global.gardens = factory(global.chalk, global.color, global.perf, global.util));
+}(this, function (chalk, color, perf, util) { 'use strict';
 
-  util = util && util.hasOwnProperty('default') ? util['default'] : util;
   chalk = chalk && chalk.hasOwnProperty('default') ? chalk['default'] : chalk;
   color = color && color.hasOwnProperty('default') ? color['default'] : color;
   perf = perf && perf.hasOwnProperty('default') ? perf['default'] : perf;
+  util = util && util.hasOwnProperty('default') ? util['default'] : util;
 
   // MIT License / Copyright Kayla Washburn 2017
 
@@ -22,11 +22,13 @@
       : perf && perf.performance
   };
 
-  // If we don't appear to be in Node or a browser, complain
+  // If we don't appear to be in Node or a browser, complain.
+  // If we appear to be in both, that is also bad. That's why we
+  // use ^ instead of ||.
   if ( !( environment.node ^ environment.browser ) )
     throw new Error( 'Gardens cannot determine the current environment, or does not support it.' )
 
-  // If we are unable to get performance hooks, warn that the feature is broken
+  // If we are unable to get performance hooks, warn that the feature is broken.
   if ( !environment.performance )
     console.warn( 'Performance metrics are not available. `time` and `timeEnd` will not function.' );
 
@@ -367,5 +369,5 @@
 
   return gardens;
 
-})));
+}));
 //# sourceMappingURL=gardens.js.map

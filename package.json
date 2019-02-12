@@ -14,10 +14,10 @@
   "author": "McKayla Washburn",
   "license": "MIT",
   "dependencies": {
-    "chalk": "^2.4.1",
-    "supports-color": "^5.5.0"
+    "chalk": "^2.4.2",
+    "supports-color": "^6.1.0"
   },
   "devDependencies": {
-    "rollup": "^0.66.6"
+    "rollup": "^1.1.2"
   }
 }
