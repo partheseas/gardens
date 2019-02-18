@@ -4,6 +4,7 @@
   "description": "A useful logging utility for JavaScript everywhere.",
   "main": "dist/gardens.js",
   "repository": "partheseas/gardens",
+  "bugs": "https://github.com/partheseas/gardens/issues",
   "keywords": [
     "error",
     "tracking",
