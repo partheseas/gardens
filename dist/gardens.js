@@ -167,16 +167,12 @@
       throw this.assertionerror( `Function didn't throw!`, ...extra )
     }
 
-    debug( ...messages ) {
-      if ( this.options.verbose ) {
-        this._print({ type: 'debug', style: { color: '#ff8800' } }, ...messages );
-        return true
-      }
-      return false
-    }
-
     raw( ...messages ) {
       messages.forEach( message => this.options.stream.write( message ) );
+    }
+
+    styled( message, style ) {
+      this.options.stream.write( ...this._transform([ this._style( message, style ) ]) );
     }
 
     log( ...messages ) {
@@ -197,6 +193,14 @@
 
     warn( ...messages ) {
       this.warning( ...messages );
+    }
+
+    debug( ...messages ) {
+      if ( this.options.verbose ) {
+        this._print({ type: 'debug', style: { color: '#ff8800' } }, ...messages );
+        return true
+      }
+      return false
     }
 
     trace( message, ...extra ) {

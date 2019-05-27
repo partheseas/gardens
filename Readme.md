@@ -66,9 +66,19 @@ garden.warn( 'uhh oh' )
 garden.warning( 'also uhh oh' )
 ```
 
-### raw
-Passes all given arguments directly to the stream (or console), without scopes, time stamps, or
-any formatting. As the name implies, it just prints raw data.
+### styled
+Takes a string and a CSS-style object, and prints the string using the given styles.
+Mostly useful in browsers where there is a lot of CSS console support.
+```JavaScript
+garden.styled( 'Look at me!', {
+  backgroundColor: '#474350',
+  borderRadius: '0.2in',
+  color: '#b568b4',
+  fontSize: '50px',
+  fontWeight: 700,
+  padding: '0.4em'
+})
+```
 
 ### debug and trace
 The debug method is similar to `log`, but it will only print if
@@ -151,6 +161,10 @@ let variableThatDoesExist = true
 garden.throws( () => someUndefinedVariable ) // Does nothing
 garden.throws( () => variableThatDoesExist ) // Throws
 ```
+
+### raw
+Passes all given arguments directly to the stream (or console), without scopes, time stamps, or
+any formatting. As the name implies, it just prints raw data.
 
 ### v4 breaking changes
 - options.scopeStyle now expects a CSS-style object, not a chalk function
