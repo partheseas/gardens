@@ -2,9 +2,9 @@
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('gardens')) :
   typeof define === 'function' && define.amd ? define(['exports', 'gardens'], factory) :
   (global = global || self, factory(global.tests = {}, global.gardens));
-}(this, function (exports, defaultGarden) { 'use strict';
+}(this, function (exports, gardens) { 'use strict';
 
-  defaultGarden = defaultGarden && defaultGarden.hasOwnProperty('default') ? defaultGarden['default'] : defaultGarden;
+  gardens = gardens && gardens.hasOwnProperty('default') ? gardens['default'] : gardens;
 
   function waitToEnd( garden, name ) {
     return new Promise( fulfill => setTimeout(() => {
@@ -26,7 +26,9 @@
     garden.log( true );
     garden.log( 4 );
     garden.log( obj );
-    garden.log( 'Object', obj, 'Boolean', true );
+    garden.log( 'Function:', x => 5 );
+    garden.log( 'RegExp:', /hello/ig );
+    garden.log( 'Object:', obj, 'Boolean:', true );
     garden.success( 'Hello champion!' );
     garden.debug( 'Hello debug sailor?' );
     garden.warning( 'Hello warning!' );
@@ -80,23 +82,23 @@
     next();
   }
 
-  function testGardens( ...gardens ) {
+  function testGardens( ...list ) {
     if ( gardens.length < 1 ) throw new Error( 'No garden given!' )
 
-    defaultGarden.info( 'Warming up for tests' );
+    gardens.info( 'Warming up for tests' );
 
     return new Promise( ( fulfill, reject ) => {
       function iterate( index ) {
-        defaultGarden.raw( '\n\n' );
-        defaultGarden.log( `Beginning test #${index+1}\n` );
+        gardens.raw( '\n\n' );
+        gardens.log( `Beginning test #${index+1}\n` );
 
-        runTest( gardens[ index ], () => {
-          if ( ++index < gardens.length ) return iterate( index )
+        runTest( list[ index ], () => {
+          if ( ++index < list.length ) return iterate( index )
 
-          defaultGarden.raw( '\n\n' );
-          defaultGarden.success( 'Done! Tests probably passed!' );
-          defaultGarden.info( 'Note that seeing errors above does not indicate a fail' );
-          defaultGarden.info( 'Some tests are designed to check error handling behavior' );
+          gardens.raw( '\n\n' );
+          gardens.success( 'Done! Tests probably passed!' );
+          gardens.info( 'Note that seeing errors above does not indicate a fail' );
+          gardens.info( 'Some tests are designed to check error handling behavior' );
           fulfill();
         });
       }
@@ -105,7 +107,9 @@
     })
   }
 
-  function index () {
+  function index ( options ) {
+    const defaultGarden = gardens.createScope( null, options );
+
     const customGarden = defaultGarden.createScope( 'customized', {
       displayTime: true,
       displayDate: true,
@@ -130,11 +134,11 @@
       verbose: true
     });
 
-    testGardens( defaultGarden, customGarden, nestedGarden, verboseGarden );
+    return testGardens( defaultGarden, customGarden, nestedGarden, verboseGarden )
   }
 
-  exports.testGardens = testGardens;
   exports.default = index;
+  exports.testGardens = testGardens;
 
   Object.defineProperty(exports, '__esModule', { value: true });
 

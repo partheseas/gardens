@@ -1,4 +1,4 @@
-import defaultGarden from 'gardens'
+import gardens from 'gardens'
 
 function waitToEnd( garden, name ) {
   return new Promise( fulfill => setTimeout(() => {
@@ -20,7 +20,9 @@ async function runTest( garden, next ) {
   garden.log( true )
   garden.log( 4 )
   garden.log( obj )
-  garden.log( 'Object', obj, 'Boolean', true )
+  garden.log( 'Function:', x => 5 )
+  garden.log( 'RegExp:', /hello/ig )
+  garden.log( 'Object:', obj, 'Boolean:', true )
   garden.success( 'Hello champion!' )
   garden.debug( 'Hello debug sailor?' )
   garden.warning( 'Hello warning!' )
@@ -74,23 +76,23 @@ async function runTest( garden, next ) {
   next()
 }
 
-export function testGardens( ...gardens ) {
+export function testGardens( ...list ) {
   if ( gardens.length < 1 ) throw new Error( 'No garden given!' )
 
-  defaultGarden.info( 'Warming up for tests' )
+  gardens.info( 'Warming up for tests' )
 
   return new Promise( ( fulfill, reject ) => {
     function iterate( index ) {
-      defaultGarden.raw( '\n\n' )
-      defaultGarden.log( `Beginning test #${index+1}\n` )
+      gardens.raw( '\n\n' )
+      gardens.log( `Beginning test #${index+1}\n` )
 
-      runTest( gardens[ index ], () => {
-        if ( ++index < gardens.length ) return iterate( index )
+      runTest( list[ index ], () => {
+        if ( ++index < list.length ) return iterate( index )
 
-        defaultGarden.raw( '\n\n' )
-        defaultGarden.success( 'Done! Tests probably passed!' )
-        defaultGarden.info( 'Note that seeing errors above does not indicate a fail' )
-        defaultGarden.info( 'Some tests are designed to check error handling behavior' )
+        gardens.raw( '\n\n' )
+        gardens.success( 'Done! Tests probably passed!' )
+        gardens.info( 'Note that seeing errors above does not indicate a fail' )
+        gardens.info( 'Some tests are designed to check error handling behavior' )
         fulfill()
       })
     }
@@ -99,7 +101,9 @@ export function testGardens( ...gardens ) {
   })
 }
 
-export default function () {
+export default function ( options ) {
+  const defaultGarden = gardens.createScope( null, options )
+
   const customGarden = defaultGarden.createScope( 'customized', {
     displayTime: true,
     displayDate: true,
@@ -124,5 +128,5 @@ export default function () {
     verbose: true
   })
 
-  testGardens( defaultGarden, customGarden, nestedGarden, verboseGarden )
+  return testGardens( defaultGarden, customGarden, nestedGarden, verboseGarden )
 }

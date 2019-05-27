@@ -1,6 +1,6 @@
 {
   "name": "gardens",
-  "version": "4.0.2",
+  "version": "4.0.3",
   "description": "A useful logging utility for JavaScript everywhere.",
   "main": "dist/gardens.js",
   "repository": "partheseas/gardens",
@@ -19,6 +19,9 @@
     "supports-color": "^6.1.0"
   },
   "devDependencies": {
-    "rollup": "^1.1.2"
+    "rollup": "^1.2.1"
+  },
+  "installConfig": {
+    "pnp": true
   }
 }

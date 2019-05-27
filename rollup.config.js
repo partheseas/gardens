@@ -1,5 +1,5 @@
 export default [{
-  input: 'src/gardens.js',
+  input: 'lib/gardens.js',
   external: [ 'chalk', 'perf_hooks', 'supports-color', 'util' ],
   output: {
     format: 'umd',

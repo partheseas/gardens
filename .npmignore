@@ -3,6 +3,8 @@
 
 # Dependencies
 node_modules
+.pnp
+.pnp.js
 
 # Logs
 *.log
@@ -10,5 +12,6 @@ node_modules
 # Logos, etc.
 media
 
-# Tests
+# We don't need to publish the source or the tests
+lib
 tests

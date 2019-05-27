@@ -3,6 +3,8 @@
 
 # Dependencies
 node_modules
+.pnp
+.pnp.js
 
 # Logs
 *.log

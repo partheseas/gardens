@@ -9,8 +9,6 @@
   perf = perf && perf.hasOwnProperty('default') ? perf['default'] : perf;
   util = util && util.hasOwnProperty('default') ? util['default'] : util;
 
-  // MIT License / Copyright Kayla Washburn 2017
-
   let environment = {
     node: typeof process !== 'undefined'
           && typeof util !== 'undefined'
@@ -65,6 +63,23 @@
     }`).join('; ')}` : ''
   }
 
+  function inspect( item ) {
+    switch ( typeof item ) {
+      case 'boolean':
+      case 'function':
+      case 'number':
+        return item.toString()
+      break
+      case 'string':
+        return item
+      break
+      default:
+        return item instanceof RegExp
+          ? item.toString()
+          : JSON.stringify( item, null, Object.keys( item ).length > 4 ? 2 : 0 )
+    }
+  }
+
   class Garden {
     constructor( scope, options, _super ) {
       let fallback = { write: console.log };
@@ -109,10 +124,21 @@
         this.outputType = 'text';
       }
 
-      if ( update.outputType ) this.options.outputType = update.outputType;
+      if ( update.outputType ) {
+        switch ( update.outputType ) {
+          case 'ansi':
+          case 'console':
+          case 'html':
+          case 'text':
+            this.options.outputType = update.outputType;
+          break
+          default:
+            throw this.typeerror( 'Invalid output type!' )
+        }
+      }
 
       if ( update._superScope ) this.options._superScope = update._superScope;
-      if ( update.scopeStyle ) Object.assign( this.options.scopeStyle, update.scopeStyle );
+      if ( update.scopeStyle )  Object.assign( this.options.scopeStyle, update.scopeStyle );
 
       if ( update.verbose )     this.options.verbose = true;
       if ( update.displayDate ) this.options.displayDate = true;
@@ -325,14 +351,10 @@
             raw.push( part.raw );
             allRaw = true;
             return
-          } else if ( this.options.outputType === 'ansi' ) {
+          } else {
             part.text = environment.node
-              ? ` ${util.inspect( part.raw, { colors: true } )}`
-              : ` ${part.raw.toString()}`;
-          } else if ( this.options.outputType === 'html' || this.options.outputType === 'text' ) {
-            part.text = environment.node
-              ? ` ${util.inspect( part.raw )}`
-              : ` ${part.raw.toString()}`;
+              ? ` ${util.inspect( part.raw, { colors: this.options.outputType === 'ansi' } )}`
+              : ` ${inspect( part.raw )}`;
           }
         }
 
