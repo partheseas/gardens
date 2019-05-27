@@ -9,8 +9,8 @@ with `console`, and will work in Node and all modern browsers.
 ## Installation
 ```Shell
 npm install gardens
+yarn add gardens
 ```
-or just download a .zip and throw it into a node_modules folder somewhere.
 
 ## Usage
 ```JavaScript
