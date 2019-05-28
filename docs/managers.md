@@ -69,12 +69,21 @@ So, let's look at how we could fix the problem by using a manager.
 ```JavaScript
 // scopes.js
 import gardens from 'gardens'
-export default gardens.createManager( 'project', {
+const manager = gardens.createManager( 'project', {
   scopeStyle: {
     color: '#43c872',
     fontDecoration: 'underline'
   }
 })
+
+manager.scope( 'c' ).options({
+  scopeStyle: {
+    color: '#35c4b7',
+    fontDecoration: 'underline'
+  }
+})
+
+export default manager
 
 // a.js
 import manager from './scopes'
@@ -86,12 +95,7 @@ const garden = manager.scope( 'b' )
 
 // c/index.js
 import manager from './scopes'
-const garden = manager.scope( 'c' ).configure({
-  scopeStyle: {
-    color: '#35c4b7',
-    fontDecoration: 'underline'
-  }
-})
+const garden = manager.scope( 'c' )
 
 // c/d.js
 import manager from './scopes'
@@ -103,7 +107,9 @@ match correctly and are shared across files. Any configurations applied in one
 place will also apply to the same scope in other places. All you need to do is
 add a file that creates a manager and exposes it for others to use. This avoids any
 circular dependency work arounds and makes scoping much more concise, readable,
-and maintainable.
+and maintainable. You can also set all of your scope options in one consistent place,
+rather than multiple different files. If you need to set up a complicated custom
+stream for your output then you do it all in one place.
 
 It's important to note that only scopes created by `manager.scope` will be managed.
 Calling `createScope` from a garden that was created by a manager will result in
