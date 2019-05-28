@@ -9,6 +9,36 @@
   perf = perf && perf.hasOwnProperty('default') ? perf['default'] : perf;
   util = util && util.hasOwnProperty('default') ? util['default'] : util;
 
+  class Manager {
+    constructor( garden ) {
+      this.scopes = {
+        default: garden,
+        nested: {}
+      };
+      this.output = this.scopes.default.createScope( `manager` );
+    }
+
+    scope( ...details ) {
+      let cursor = this.scopes;
+
+      for ( let i = 0; i < details.length; i++ ) {
+        if ( typeof details[ i ] !== 'string' ) throw this.output.typeerror( 'Scope names must be all be strings' )
+        let name = details[ i ];
+
+        if ( name in cursor.nested ) {
+          cursor = cursor.nested[ name ];
+        } else {
+          cursor = cursor.nested[ name ] = {
+            default: cursor.default.createScope( name ),
+            nested: {}
+          };
+        }
+      }
+
+      return cursor.default
+    }
+  }
+
   let environment = {
     node: typeof process !== 'undefined'
           && typeof util !== 'undefined'
@@ -116,6 +146,13 @@
         throw new Error( 'scope must be a string or undefined' )
 
       return new Garden( scope, options, this )
+    }
+
+    createManager( scope, options ) {
+      if ( typeof scope !== 'string' )
+        throw new Error( 'manager name must be a string' )
+
+      return new Manager( this.createScope( scope, options ) )
     }
 
     _checkOptions( update ) {

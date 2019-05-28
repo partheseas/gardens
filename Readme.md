@@ -1,16 +1,18 @@
 # Gardens
-Gardens make it easier to trace the flow of your code by always printing
-the name of the scope that you are logging from. It supports nested scopes, custom colors,
+Gardens make it easier to trace the flow of your code by giving you the ability
+to break your output into scopes. It supports nested scopes, custom colors,
 time stamps, HTML output, and many other fun things! A garden can be used interchangeably
-with `console`, and will work in Node and all modern browsers.
+with `console`, and will work in modern node.js and all modern browsers.
 
 ![macOS Screenshot](/media/gardens.png)
 
 ## Installation
 ```Shell
-npm install gardens
+npm i gardens -s
 yarn add gardens
 ```
+
+You should use `yarn` because [pnp](https://yarnpkg.com/en/docs/pnp) is a game changer.
 
 ## Usage
 ```JavaScript
@@ -20,21 +22,26 @@ const gardens = require( 'gardens' )
 import gardens from 'gardens'
 
 const named = gardens.createScope( 'named garden!' )
+const manager = gardens.createManager( 'project' )
 ```
+
+# Managers
+Managers are a really powerful way to use gardens for larger codebases. For details
+on their usage and why you should use them, read their [documentation](/docs/managers.md).
 
 ### Configuration
 Configurations can be set per instance, and updated at any time. Each garden
 has the following options.
 
 Note: The `scopeStyle` option is used to configure the style of the scope name when printed.
-In Node it supports the `backgroundColor`, `color`, `fontStyle`, `fontWeight`, and `textDecoration`
+In node.js it supports the `backgroundColor`, `color`, `fontStyle`, `fontWeight`, and `textDecoration`
 CSS properties. Support on the browser should technically be any CSS property, but
-the exact implementation depends on the implementation of the browser itself.
+the exact support depends on the implementation of the browser itself.
 
 ```JavaScript
 garden.configure({
   stream: WrittableStream,
-  outputType: 'ansi' || 'console' || 'html' || 'text',
+  outputType: 'ansi', 'console', 'html' or 'text',
   scopeStyle: {
     color: '#34dfcb',
     fontWeight: 700
@@ -46,7 +53,7 @@ garden.configure({
 ```
 
 ### Configuring streams
-For the sake of being easy to use in browser with custom outputs, each garden only
+For the sake of being easy to use with custom outputs, each garden only
 cares that the stream given in its options implements a `write` method. One such
 browserland object that already implements a write function is `document`, but I
 would not recommend that, because it erases the previous contents, which is sad.
@@ -72,17 +79,15 @@ Mostly useful in browsers where there is a lot of CSS console support.
 ```JavaScript
 garden.styled( 'Look at me!', {
   backgroundColor: '#474350',
-  borderRadius: '0.2in',
   color: '#b568b4',
   fontSize: '50px',
   fontWeight: 700,
-  padding: '0.4em'
 })
 ```
 
 ### debug and trace
 The debug method is similar to `log`, but it will only print if
-`garden.options.verbose` is set to true. If this is `null`ish then
+`garden.options.verbose` is truthy. If this is falsish then
 the call will do nothing.
 
 The story for trace is similar, though it behaves more like `catch` than `log`, meaning

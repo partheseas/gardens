@@ -6,11 +6,8 @@
 
   gardens = gardens && gardens.hasOwnProperty('default') ? gardens['default'] : gardens;
 
-  function waitToEnd( garden, name ) {
-    return new Promise( fulfill => setTimeout(() => {
-      garden.timeEnd( name );
-      fulfill();
-    }, 333 ) )
+  function wait( ms ) {
+    return new Promise( fulfill => setTimeout(() => fulfill(), ms ) )
   }
 
   let obj = {
@@ -48,12 +45,13 @@
     garden.count( secret );
     garden.count( secret, '\n' );
 
-    garden.time( '333ms' );
-    await waitToEnd( garden, '333ms' );
-
     garden.time( 3 );
     garden.timeEnd( 3 );
 
+    garden.time( '333ms' );
+    await wait( 333 );
+    garden.timeEnd( '333ms' );
+    
     let immediate = Symbol( 'immediate' );
     garden.time( immediate );
     garden.time( immediate );
