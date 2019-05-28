@@ -1,10 +1,12 @@
 # Managers
 
 ## Why use managers?
-Let's start with an example of the problem that managers seek to solve.
+Let's start with an example of the problem that managers seek to solve. For
+simplicity, I'm going to use ESModules syntax.
 
 ```JavaScript
 // a.js
+import gardens from 'gardens'
 const garden = gardens.createScope( 'project', {
   scopeStyle: {
     color: '#43c872',
@@ -13,6 +15,7 @@ const garden = gardens.createScope( 'project', {
 }).createScope( 'a' )
 
 // b.js
+import gardens from 'gardens'
 const garden = gardens.createScope( 'project', {
   scopeStyle: {
     color: '#43c872',
@@ -21,6 +24,7 @@ const garden = gardens.createScope( 'project', {
 }).createScope( 'a' )
 
 // c/index.js
+import gardens from 'gardens'
 const garden = gardens.createScope( 'project', {
   scopeStyle: {
     color: '#43c872',
@@ -34,6 +38,7 @@ const garden = gardens.createScope( 'project', {
 })
 
 // c/d.js
+import gardens from 'gardens'
 const garden = gardens.createScope( 'project', {
   scopeStyle: {
     color: '#43c872',
@@ -63,7 +68,8 @@ or Rollup then things get complicated even further.
 So, let's look at how we could fix the problem by using a manager.
 ```JavaScript
 // scopes.js
-const manager = gardens.createManager( 'project', {
+import gardens from 'gardens'
+export default gardens.createManager( 'project', {
   scopeStyle: {
     color: '#43c872',
     fontDecoration: 'underline'
@@ -71,12 +77,15 @@ const manager = gardens.createManager( 'project', {
 })
 
 // a.js
+import manager from './scopes'
 const garden = manager.scope( 'a' )
 
 // b.js
+import manager from './scopes'
 const garden = manager.scope( 'b' )
 
-// c.js
+// c/index.js
+import manager from './scopes'
 const garden = manager.scope( 'c' ).configure({
   scopeStyle: {
     color: '#35c4b7',
@@ -84,7 +93,8 @@ const garden = manager.scope( 'c' ).configure({
   }
 })
 
-// d.js
+// c/d.js
+import manager from './scopes'
 const garden = manager.scope( 'c', 'd' )
 ```
 
@@ -95,12 +105,16 @@ add a file that creates a manager and exposes it for others to use. This avoids 
 circular dependency work arounds and makes scoping much more concise, readable,
 and maintainable.
 
+It's important to note that only scopes created by `manager.scope` will be managed.
+Calling `createScope` from a garden that was created by a manager will result in
+an unmanaged scope.
+
 ## Usage
 That's it! Managers are a pretty simple feature. They just have a single method
 that takes a list of names.
 
 ```JavaScript
-const m = gardens.createManager( 'project' )
+const m = gardens.createManager( 'project', options ) // Same options as any other garden
 const garden = m.scope() // Returns the root 'project' scope
 const gardena = m.scope( 'a' ) // Returns a nested 'b' scope
 const gardenabcd = m.scope( 'a', 'b', 'c', 'd' ) // I think you get the idea
