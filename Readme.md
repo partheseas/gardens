@@ -1,8 +1,9 @@
-# Gardens
-Gardens make it easier to trace the flow of your code by giving you the ability
-to break your output into scopes. It supports nested scopes, custom colors,
-time stamps, HTML output, and many other fun things! A garden can be used interchangeably
-with `console`, and will work in modern node.js and all modern browsers.
+# gardens
+Using gardens makes it easier to handle your code by giving you the ability to
+break your output into scopes and a unified way to handle errors. It supports
+nested scopes, custom colors, time stamps, HTML output, and many other fun things!
+A garden can be used interchangeably with `console`, and will work in modern
+node.js and all modern browsers.
 
 ![macOS Screenshot](/media/gardens.png)
 
