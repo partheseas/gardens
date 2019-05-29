@@ -41,7 +41,7 @@ the exact support depends on the implementation of the browser itself.
 
 ```JavaScript
 garden.configure({
-  stream: WrittableStream,
+  stream: WritableStream,
   outputType: 'ansi', 'console', 'html' or 'text',
   scopeStyle: {
     color: '#34dfcb',
