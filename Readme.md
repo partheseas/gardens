@@ -62,9 +62,9 @@ would not recommend that, because it erases the previous contents, which is sad.
 When setting a stream other than the default, the `outputType` is always set to
 text to keep things simple. If you want colors, be sure to set this option correctly.
 
-### log, info, success, warn, and warning
+### log, info, success, warn, warning, and fail
 These methods all just dump the arguments given out to the console like you would expect. The
-output is prefixed with the garden name and output type. (log or warning)
+output is prefixed with the scope name and output type. (log, warning, etc.)
 ```JavaScript
 // These are all for general logging
 garden.log( 'message' )
@@ -72,6 +72,7 @@ garden.info( 'new message' )
 garden.success( 'yay!' )
 garden.warn( 'uhh oh' )
 garden.warning( 'also uhh oh' )
+garden.fail( 'oh no!' )
 ```
 
 ### styled
@@ -88,8 +89,7 @@ garden.styled( 'Look at me!', {
 
 ### debug and trace
 The debug method is similar to `log`, but it will only print if
-`garden.options.verbose` is truthy. If this is falsish then
-the call will do nothing.
+`options.verbose` is truthy. If this is falsish then the call will do nothing.
 
 The story for trace is similar, though it behaves more like `catch` than `log`, meaning
 that if it is verbose, it will print a call stack.
@@ -108,7 +108,7 @@ generic string as the argument. Easy peasy.
 
 `catch` is similar to `error`, but will check if the first argument is already an error.
 It will only generate a new `Error` itself if the first argument is not already an `Error`,
-`TypeError`, or `ReferenceError`. If you the value you are dealing with may or may not be
+`TypeError`, or `ReferenceError`. If the value you are dealing with may or may not be
 an error, and you don't want to manually check yourself, then use this method.
 ```JavaScript
 garden.error( 'something went wrong!!1!' )
@@ -136,12 +136,12 @@ garden.timeEnd( tracker )
 Takes a String, Symbol, or undefined as an argument, and then logs how many times `count`
 has been called with that specific argument.
 ```JavaScript
-let secret = Symbol()
-
 garden.count() // 1
 garden.count() // 2
 garden.count( 'hello sailor' ) // 1
 garden.count( 'hello sailor' ) // 2
+
+let secret = Symbol()
 garden.count( secret ) // 1
 garden.count( secret ) // 2
 ```
@@ -169,7 +169,7 @@ garden.throws( () => variableThatDoesExist ) // Throws
 ```
 
 ### raw
-Passes all given arguments directly to the stream (or console), without scopes, time stamps, or
+Passes all given arguments directly to the output stream, without scopes, time stamps, or
 any formatting. As the name implies, it just prints raw data.
 
 ### v4 breaking changes
