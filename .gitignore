@@ -1,0 +1,10 @@
+# macOS
+.DS_Store
+
+# Dependencies
+node_modules
+.pnp
+.pnp.js
+
+# Logs
+*.log

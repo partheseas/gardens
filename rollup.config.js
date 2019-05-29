@@ -12,7 +12,7 @@ export default [{
   external: [ 'gardens' ],
   output: {
     format: 'umd',
-    file: 'tests/rollup.js',
+    file: 'tests/index.bundle.js',
     name: 'tests',
     sourcemap: true,
     globals: {

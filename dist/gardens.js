@@ -56,10 +56,6 @@
   if ( !( environment.node ^ environment.browser ) )
     throw new Error( 'Gardens cannot determine the current environment, or does not support it.' )
 
-  // If we are unable to get performance hooks, warn that the feature is broken.
-  if ( !environment.performance )
-    console.warn( 'Performance metrics are not available. `time` and `timeEnd` will not function.' );
-
   environment.defaultOutputType = environment.node
     ? color.stdout.hasBasic ? 'ansi' : 'text'
     : 'console';
@@ -232,6 +228,10 @@
       this.warning( ...messages );
     }
 
+    fail( ...messages ) {
+      this._print({ type: 'fail', style: { color: '#ff1212' } }, ...messages );
+    }
+
     debug( ...messages ) {
       if ( this.options.verbose ) {
         this._print({ type: 'debug', style: { color: '#ff8800' } }, ...messages );
@@ -281,9 +281,11 @@
     }
 
     time( name ) {
-      if ( arguments.length > 1 ) this.warn( '`.time` should only take one argument. Pass additional arguments to `.timeEnd`.' );
+      // If we are unable to get performance hooks, warn that the feature is broken.
       if ( !environment.performance ) return this.warn( 'Performance metrics are not available. `time` and `timeEnd` will not function.' )
+      if ( arguments.length > 1 ) this.warn( '`.time` should only take one argument. Pass additional arguments to `.timeEnd`.' );
 
+      // Count undefined and null both as null
       if ( name == null ) name = null;
 
       if ( !this._times[ name ] ) this._times[ name ] = [ environment.performance.now() ];

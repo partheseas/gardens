@@ -1,8 +1,8 @@
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('gardens')) :
-  typeof define === 'function' && define.amd ? define(['exports', 'gardens'], factory) :
-  (global = global || self, factory(global.tests = {}, global.gardens));
-}(this, function (exports, gardens) { 'use strict';
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(require('gardens')) :
+  typeof define === 'function' && define.amd ? define(['gardens'], factory) :
+  (global = global || self, factory(global.gardens));
+}(this, function (gardens) { 'use strict';
 
   gardens = gardens && gardens.hasOwnProperty('default') ? gardens['default'] : gardens;
 
@@ -29,7 +29,8 @@
     garden.success( 'Hello champion!' );
     garden.debug( 'Hello debug sailor?' );
     garden.warning( 'Hello warning!' );
-    garden.warn( 'Hello warn!', '\n' );
+    garden.warn( 'Hello warn!' );
+    garden.fail( 'Oh no!', '\n' );
 
     garden.count();
     garden.count();
@@ -51,7 +52,7 @@
     garden.time( '333ms' );
     await wait( 333 );
     garden.timeEnd( '333ms' );
-    
+
     let immediate = Symbol( 'immediate' );
     garden.time( immediate );
     garden.time( immediate );
@@ -105,7 +106,7 @@
     })
   }
 
-  function index ( options ) {
+  function tests ( options ) {
     const defaultGarden = gardens.createScope( null, options );
 
     const customGarden = defaultGarden.createScope( 'customized', {
@@ -119,7 +120,8 @@
         fontStyle: 'italic',
         padding: '0.15em',
         textDecoration: 'underline'
-      }
+      },
+      verbose: true
     });
 
     const nestedGarden = customGarden.createScope( 'nested', {
@@ -128,17 +130,37 @@
       }
     });
 
-    const verboseGarden = defaultGarden.createScope( 'verbose' ).configure({
+    const manager = defaultGarden.createManager( 'manager' );
+
+    manager.scope( 'a', 'b' ).configure({
+      scopeStyle: {
+        backgroundColor: '#3b3c41',
+        color: '#e3d4e6',
+        textDecoration: 'underline'
+      },
       verbose: true
     });
 
-    return testGardens( defaultGarden, customGarden, nestedGarden, verboseGarden )
+    const managedScope = manager.scope( 'a', 'b', 'c' );
+
+    return testGardens( defaultGarden, nestedGarden, managedScope )
   }
 
-  exports.default = index;
-  exports.testGardens = testGardens;
+  tests().then( () => {
+    if ( gardens.environment.browser ) {
+      const output = document.getElementById( 'output' );
+      const stream = {
+        write( string ) {
+          output.innerHTML += string;
+        }
+      };
 
-  Object.defineProperty(exports, '__esModule', { value: true });
+      tests({
+        stream,
+        outputType: 'html'
+      });
+    }
+  });
 
 }));
-//# sourceMappingURL=rollup.js.map
+//# sourceMappingURL=index.bundle.js.map
