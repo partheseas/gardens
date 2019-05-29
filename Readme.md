@@ -26,7 +26,7 @@ const named = gardens.createScope( 'named garden!' )
 const manager = gardens.createManager( 'project' )
 ```
 
-# Managers
+### Managers
 Managers are a really powerful way to use gardens for larger codebases. For details
 on their usage and why you should use them, read their [documentation](/docs/managers.md).
 

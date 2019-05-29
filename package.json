@@ -19,7 +19,7 @@
     "supports-color": "^6.1.0"
   },
   "devDependencies": {
-    "rollup": "^1.2.1"
+    "rollup": "^1.12.4"
   },
   "installConfig": {
     "pnp": true
