@@ -1,4 +1,4 @@
-import gardens from 'gardens'
+import gardens from '..'
 import tests from './tests'
 
 tests().then( () => {

@@ -1,4 +1,4 @@
-import gardens from 'gardens'
+import gardens from '..'
 
 function wait( ms ) {
   return new Promise( fulfill => setTimeout(() => fulfill(), ms ) )

@@ -1,6 +1,6 @@
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(require('gardens')) :
-  typeof define === 'function' && define.amd ? define(['gardens'], factory) :
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(require('..')) :
+  typeof define === 'function' && define.amd ? define(['..'], factory) :
   (global = global || self, factory(global.gardens));
 }(this, function (gardens) { 'use strict';
 
