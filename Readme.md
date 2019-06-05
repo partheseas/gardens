@@ -19,9 +19,6 @@ You should use Yarn and [pnp](https://yarnpkg.com/en/docs/pnp).
 
 ## Usage
 ```JavaScript
-// CommonJS
-const gardens = require( 'gardens' )
-// ESModules
 import gardens from 'gardens'
 
 const named = gardens.createScope( 'named garden!' )
