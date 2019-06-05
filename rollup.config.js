@@ -16,7 +16,7 @@ export default [{
     name: 'tests',
     sourcemap: true,
     globals: {
-      'gardens': 'gardens'
+      '..': 'gardens'
     },
     exports: 'named'
   }

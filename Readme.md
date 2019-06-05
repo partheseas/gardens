@@ -1,19 +1,21 @@
 # gardens
+![package version](https://img.shields.io/badge/dynamic/json.svg?color=92db61&label=gardens&query=%24.version&url=https%3A%2F%2Funpkg.io%2Fgardens%2Fpackage.json&prefix=v)
+![stability](https://img.shields.io/badge/stability-release-66f29a.svg)
+
+
 Using gardens makes it easier to handle your code by giving you the ability to
 break your output into scopes and a unified way to handle errors. It supports
 nested scopes, custom colors, time stamps, HTML output, and many other fun things!
-A garden can be used interchangeably with `console`, and will work in modern
+A garden can be used interchangeably with `console`, and will work in
 node.js and all modern browsers.
 
 ![macOS Screenshot](/media/gardens.png)
 
 ## Installation
 ```Shell
-npm i gardens -s
 yarn add gardens
 ```
-
-You should use `yarn` because [pnp](https://yarnpkg.com/en/docs/pnp) is a game changer.
+You should use Yarn and [pnp](https://yarnpkg.com/en/docs/pnp).
 
 ## Usage
 ```JavaScript

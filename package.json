@@ -1,7 +1,12 @@
 {
   "name": "gardens",
   "version": "4.1.1",
+  "author": "McKayla Washburn",
   "description": "A useful logging utility for JavaScript everywhere.",
+  "license": "MIT",
+  "files": [
+    "dist/*"
+  ],
   "main": "dist/gardens.js",
   "repository": "partheseas/gardens",
   "bugs": "https://github.com/partheseas/gardens/issues",
@@ -12,14 +17,12 @@
     "debugging",
     "utility"
   ],
-  "author": "McKayla Washburn",
-  "license": "MIT",
   "dependencies": {
     "chalk": "^2.4.2",
     "supports-color": "^6.1.0"
   },
   "devDependencies": {
-    "rollup": "^1.12.4"
+    "rollup": "^1.14.2"
   },
   "installConfig": {
     "pnp": true
