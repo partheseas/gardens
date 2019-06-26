@@ -1,6 +1,9 @@
+import minify from 'rollup-plugin-babel-minify'
+
 export default [{
   input: 'lib/gardens.js',
   external: [ 'chalk', 'perf_hooks', 'supports-color', 'util' ],
+  plugins: [ minify({ comments: false }) ],
   output: {
     format: 'umd',
     file: 'dist/gardens.js',
@@ -10,6 +13,7 @@ export default [{
 }, {
   input: 'tests/index.js',
   external: [ 'gardens' ],
+  plugins: [ minify({ comments: false }) ],
   output: {
     format: 'umd',
     file: 'tests/index.bundle.js',

@@ -8,3 +8,7 @@ node_modules
 
 # Logs
 *.log
+
+# Builds
+dist
+tests/*.bundle.*

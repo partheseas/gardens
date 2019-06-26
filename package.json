@@ -22,7 +22,8 @@
     "supports-color": "^6.1.0"
   },
   "devDependencies": {
-    "rollup": "^1.14.2"
+    "rollup": "^1.14.2",
+    "rollup-plugin-babel-minify": "^8.0.0"
   },
   "installConfig": {
     "pnp": true
