@@ -2,23 +2,40 @@ env:
   es6: true
 parser: babel-eslint
 rules:
+  # General rules
   arrow-body-style: error
   arrow-parens:
     - error
     - as-needed
   arrow-spacing: error
+  brace-style:
+    - error
+    - stroustrup
+  # camelcase: error
   class-methods-use-this: error
+  comma-spacing: error
+  comma-style: error
   constructor-super: error
   dot-location:
     - error
     - property
   dot-notation: error
+  indent:
+    - warn
+    - 2
+    - SwitchCase: 1
+      ignoredNodes:
+      - TemplateLiteral
+      - SwitchCase BreakStatement
   keyword-spacing: error
+  linebreak-style: error
+  lines-between-class-members: error
   max-len:
     - warn
     - code: 100
   no-cond-assign: error
   no-constant-condition: error
+  no-debugger: error
   no-dupe-args: error
   no-dupe-class-members: error
   no-dupe-keys: error
@@ -56,6 +73,7 @@ rules:
   no-undef-init: error
   no-undefined: error
   no-unexpected-multiline: error
+  no-unreachable: error
   no-unused-vars: error
   no-useless-computed-key: error
   no-useless-concat: error
@@ -102,8 +120,11 @@ rules:
   space-in-parens:
     - error
     - always
-    - exceptions: [ "{}", "empty" ]
+    - exceptions:
+      - "{}"
+      - empty
   switch-colon-spacing: error
   symbol-description: error
   template-tag-spacing: error
+  valid-typeof: error
   yoda: error

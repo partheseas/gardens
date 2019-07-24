@@ -2,7 +2,12 @@ import minify from 'rollup-plugin-babel-minify'
 
 export default [{
   input: 'lib/gardens.js',
-  external: [ 'chalk', 'perf_hooks', 'supports-color', 'util' ],
+  external: [
+    'chalk',
+    'perf_hooks',
+    'supports-color',
+    'util'
+  ],
   plugins: [ minify({ comments: false }) ],
   output: {
     format: 'umd',
