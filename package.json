@@ -22,6 +22,8 @@
     "supports-color": "^6.1.0"
   },
   "devDependencies": {
+    "babel-eslint": "^10.0.2",
+    "eslint": "^6.1.0",
     "rollup": "^1.14.2",
     "rollup-plugin-babel-minify": "^8.0.0"
   },
