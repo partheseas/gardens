@@ -2,12 +2,15 @@
 ![package version](https://img.shields.io/badge/dynamic/json.svg?color=92db61&label=gardens&query=%24.version&url=https%3A%2F%2Funpkg.io%2Fgardens%2Fpackage.json&prefix=v)
 ![stability](https://img.shields.io/badge/stability-release-66f29a.svg)
 
-
 Using gardens makes it easier to handle your code by giving you the ability to
 break your output into scopes and a unified way to handle errors. It supports
 nested scopes, custom colors, time stamps, HTML output, and many other fun things!
 A garden can be used interchangeably with `console`, and will work in
-node.js and all modern browsers.
+Node.js and all modern browsers.
+
+- Chrome, Safari, Firefox, and Edge <sub>(at least the Chromium based version)</sub>
+- Node.js
+- Electron
 
 ![macOS Screenshot](/media/gardens.png)
 
@@ -27,7 +30,7 @@ const manager = gardens.createManager( 'project' )
 
 ### Managers
 Managers are a really powerful way to use gardens for larger codebases. For details
-on their usage and why you should use them, read their [documentation](/docs/managers.md).
+on their usage and why you should use them, read their [documentation](/doc/managers.md).
 
 ### Configuration
 Configurations can be set per instance, and updated at any time. Each garden

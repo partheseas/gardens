@@ -122,6 +122,6 @@ that takes a list of names.
 ```JavaScript
 const m = gardens.createManager( 'project', options ) // Same options as any other garden
 const garden = m.scope() // Returns the root 'project' scope
-const gardena = m.scope( 'a' ) // Returns a nested 'b' scope
+const gardena = m.scope( 'a' ) // Returns the nested scope 'a'
 const gardenabcd = m.scope( 'a', 'b', 'c', 'd' ) // I think you get the idea
 ```
