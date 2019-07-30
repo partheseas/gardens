@@ -8,7 +8,9 @@ export default [{
     'supports-color',
     'util'
   ],
-  plugins: [ minify({ comments: false }) ],
+  plugins: [
+    minify({ comments: false })
+  ],
   output: {
     format: 'umd',
     file: 'dist/gardens.js',
@@ -18,7 +20,9 @@ export default [{
 }, {
   input: 'tests/index.js',
   external: [ 'gardens' ],
-  plugins: [ minify({ comments: false }) ],
+  plugins: [
+    minify({ comments: false })
+  ],
   output: {
     format: 'umd',
     file: 'tests/index.bundle.js',
