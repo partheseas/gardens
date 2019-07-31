@@ -5,12 +5,19 @@ export interface Environment {
   electron: boolean,
   node: boolean,
   performance: any,
-  defaultOutputType: OutputType // XXX: Not robust
+  readonly defaultOutputType: OutputType
 }
 
 export class Manager {
-  private scopes: object;
+  private scopes: ManagerScope;
   scope( ...names: string[] ): Garden;
+}
+
+export interface ManagerScope {
+  default: Garden,
+  nested: {
+    [ name: string ]: ManagerScope
+  }
 }
 
 export class Garden {
@@ -19,7 +26,7 @@ export class Garden {
   private _times: TimesObject;
   private _counts: CountsObject;
 
-  configure( update: GardenOptions ): Garden;
+  configure( update: GardenOptions ): this;
 
   private _checkOptions( update: GardenOptions ): void;
   
@@ -32,7 +39,7 @@ export class Garden {
   throws( throws: () => never, ...messages: any[] ): void;
 
   raw( ...messages: any[] ): void;
-  styled( message: any, style: CssObject ): void; // XXX: Not robust
+  styled( message: any, style: CssObject ): void;
 
   log( ...messages: any[] ): void;
   info( ...messages: any[] ): void;
@@ -51,11 +58,11 @@ export class Garden {
   
   catch( error: Error | any, ...messages: any[] ): Error;
 
-  time( name: Name ): void;
-  timeEnd( name: Name, ...messages: any[] ): void;
-  count( name: Name, ...messages: any[] ): void;
+  time( name: Name | null ): void;
+  timeEnd( name: Name | null, ...messages: any[] ): void;
+  count( name: Name | null, ...messages: any[] ): void;
 
-  private _scopePrefix( outputType: OutputType ): string; // XXX: It doesn't actually return a string
+  private _scopePrefix( outputType: OutputType ): StyledMessage[];
   private _print( type: PrintType, ...messages: any[] ): void;
   private _style( text, style, outputType: OutputType ): StyledMessage;
   private _transform( output: StyledMessage[] ): any[];
@@ -70,11 +77,11 @@ interface CountsObject {
 }
 
 export interface GardenOptions {
-  scope?: string,
+  readonly scope?: string,
   stream?: WritableStreamish,
   outputType?: OutputType,
   timingPrecision?: number,
-  scopeStyle?: CssObject, // XXX: Not robust
+  scopeStyle?: CssObject,
   verbose?: boolean,
   displayTime?: boolean,
   displayDate?: boolean
@@ -88,25 +95,27 @@ export type OutputType =
   | 'ansi'
   | 'console'
   | 'html'
-  | 'text'
+  | 'text';
+
+export type CssObject = object;
 
 export type Name =
   | symbol
-  | string
-  | null
+  | string;
 
 interface PrintType {
   type: string,
-  style: any // XXX: Fix
+  style?: CssObject
 }
 
 interface StyledMessage {
-  raw: any,
   text: string,
-  format: any // XXX: Fix
+  // Only used for outputType 'console'. The CSS string that corresponds to
+  // `text` and will be passed to console.log
+  format?: string
 }
 
 // The type of our export has to be declared seperately, since you
 // can't really declare the export directly.
-declare const gardens: Garden & { environment };
+declare const gardens: Garden & { environment: Environment };
 export = gardens;

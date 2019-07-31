@@ -101,9 +101,19 @@ export function testGardens( ...list ) {
 }
 
 export default function ( options ) {
-  const defaultGarden = gardens.createScope( null, options )
+  const fresh = gardens.createScope( null, options );
 
-  const customGarden = defaultGarden.createScope( 'customized', {
+  const manager = fresh.createManager( 'manager', {
+    scopeStyle: {
+      backgroundColor: '#474747',
+      borderRadius: '3px',
+      fontWeight: 700,
+      padding: '0.15em',
+      marginRight: '0.15em'
+    }
+  });
+
+  const customGarden = manager.scope( 'customized' ).configure({
     displayTime: true,
     displayDate: true,
     scopeStyle: {
@@ -116,26 +126,13 @@ export default function ( options ) {
       textDecoration: 'underline'
     },
     verbose: true
-  })
+  });
 
   const nestedGarden = customGarden.createScope( 'nested', {
     scopeStyle: {
       color: '#393ac1'
     }
-  })
+  });
 
-  const manager = defaultGarden.createManager( 'manager' )
-
-  manager.scope( 'a', 'b' ).configure({
-    scopeStyle: {
-      backgroundColor: '#3b3c41',
-      color: '#e3d4e6',
-      textDecoration: 'underline'
-    },
-    verbose: true
-  })
-
-  const managedScope = manager.scope( 'a', 'b', 'c' )
-
-  return testGardens( defaultGarden, nestedGarden, managedScope )
+  return testGardens( fresh, nestedGarden );
 }

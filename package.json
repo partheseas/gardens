@@ -5,9 +5,11 @@
   "description": "A useful logging utility for JavaScript everywhere.",
   "license": "MIT",
   "files": [
-    "dist/*"
+    "dist/*",
+    "lib/*.d.ts"
   ],
   "main": "dist/gardens.js",
+  "types": "lib/gardens.d.ts",
   "repository": "partheseas/gardens",
   "bugs": "https://github.com/partheseas/gardens/issues",
   "keywords": [
