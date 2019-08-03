@@ -68,6 +68,9 @@ export class Garden {
   private _transform( output: StyledMessage[] ): any[];
 }
 
+// These types are correct, but are unsupported by TypeScript and will cause errors
+// to be thrown from tsc. Since these are only interal types maybe they should be
+// removed and replaced with any in a future release? At least temporarily?
 interface TimesObject {
   [ name: Name ]: number[]
 }
@@ -118,4 +121,4 @@ interface StyledMessage {
 // The type of our export has to be declared seperately, since you
 // can't really declare the export directly.
 declare const gardens: Garden & { environment: Environment };
-export = gardens;
+export default gardens;

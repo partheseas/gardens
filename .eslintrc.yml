@@ -26,7 +26,6 @@ rules:
     - SwitchCase: 1
       ignoredNodes:
       - TemplateLiteral
-      - SwitchCase BreakStatement
   keyword-spacing: error
   linebreak-style: error
   lines-between-class-members: error
