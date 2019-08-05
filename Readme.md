@@ -1,5 +1,5 @@
 # gardens
-![package version](https://img.shields.io/badge/dynamic/json.svg?color=92db61&label=gardens&query=%24.version&url=https%3A%2F%2Funpkg.io%2Fgardens%2Fpackage.json&prefix=v)
+![package version](https://img.shields.io/badge/dynamic/json?color=92db61&label=gardens&prefix=v&query=%24%5B%27dist-tags%27%5D.latest&url=https%3A%2F%2Fregistry.npmjs.com%2Fgardens)
 ![stability](https://img.shields.io/badge/stability-release-66f29a.svg)
 [![build status](https://travis-ci.org/partheseas/gardens.svg?branch=master)](https://travis-ci.org/partheseas/gardens)
 
@@ -37,7 +37,7 @@ import gardens from 'gardens';
 ```
 ```JavaScript
 // ES6 (Deno)
-import gardens from 'https://unpkg.com/gardens@^4/lib/deno.js';
+import gardens from 'https://deno.land/x/gardens/deno.ts';
 ```
 ```JavaScript
 // <script> (Browsers)
