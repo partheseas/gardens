@@ -8,9 +8,9 @@ export default [{
     'supports-color',
     'util'
   ],
-  // plugins: [
-  //   minify({ comments: false })
-  // ],
+  plugins: [
+    minify({ comments: false })
+  ],
   output: {
     format: 'umd',
     file: 'dist/gardens.js',
@@ -19,9 +19,9 @@ export default [{
   }
 }, {
   input: 'lib/reactnative.js',
-  // plugins: [
-  //   minify({ comments: false })
-  // ],
+  plugins: [
+    minify({ comments: false })
+  ],
   output: {
     format: 'cjs',
     file: 'dist/reactnative.js',
@@ -29,14 +29,14 @@ export default [{
     sourcemap: true
   }
 }, {
-  input: 'bad_tests/index.js',
+  input: 'bad_tests/umd.js',
   external: [ 'gardens' ],
   plugins: [
     minify({ comments: false })
   ],
   output: {
     format: 'umd',
-    file: 'bad_tests/index.bundle.js',
+    file: 'bad_tests/index.js',
     name: 'tests',
     sourcemap: true,
     globals: {

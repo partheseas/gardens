@@ -1,18 +1,2 @@
-import gardens from '..';
-import tests from './tests.js';
-
-tests();
-
-if ( gardens.environment.browser ) {
-  const output = document.getElementById( 'output' );
-  const stream = {
-    write( string ) {
-      output.innerHTML += string;
-    }
-  };
-
-  tests({
-    stream,
-    outputType: 'html'
-  });
-}
+(function(a,b){"object"==typeof exports&&"undefined"!=typeof module?b(require("..")):"function"==typeof define&&define.amd?define([".."],b):(a=a||self,b(a.gardens))})(this,function(a){'use strict';function b(a){return new Promise(b=>setTimeout(()=>b(),a))}async function c(a,c){const{log:d,info:e,success:g,debug:h,warning:i,warn:j,fail:k,count:l,countReset:m,time:n,timeEnd:o}=a.bound();e("Attempting to get a bound instance of a bound garden should warn and return null."),a.bound().bound(),a.assert(!0),a.throws(()=>a.assert(!1)),a.throws(()=>a.assert_eq(1,2)),a.deny(!1),a.throws(()=>a.deny(!0)),a.throws(()=>a.throws(()=>!0)),a.styled("This text should be styled!\n",{color:"#49de5a"}),d(!0),d(4),d(f),d("Function:",a=>a+5),d("RegExp:",/hello/ig),d("Object:",f,"Boolean:",!0),g("Hello champion!"),h("Hello debug sailor?"),i("Hello warning!"),j("Hello warn!"),k("Oh no!","\n"),a.trace("This should trace, but only when verbose"),a.error("This is an error!"),a.typeerror("This is a typeerror!"),a.referenceerror("This is a referenceerror!"),a.catch("This should create an error"),l(),l(),l(null,"Should be the same counter as the two above"),l("count","Should start at 1"),l("count","because it uses a string"),l(2),l(2),e("Resetting count..."),m(2),l(2),l(2);const p=Symbol("sailor");l(p),l(p,"\n"),n(3),o(3),n("333ms"),await b(333),o("333ms");const q=Symbol("immediate");n(q),n(q),o(q),o(q),o(q,"\n"),c()}function d(a,...b){if(1>b.length)throw new Error("No garden given!");return a.info("Warming up for tests"),new Promise(d=>{function e(f){a.raw("\n\n"),a.log(`Beginning test #${f+1}\n`),c(b[f],()=>++f<b.length?e(f):void(a.raw("\n\n"),a.success("Done! Tests probably passed!"),a.info("Note that seeing errors above does not indicate a fail"),a.info("Some tests are designed to check error handling behavior"),d()))}e(0)})}function e(a,b){const c=a.createScope(null,b),e=c.createManager("manager",{scopeStyle:{backgroundColor:"#474747",borderRadius:"3px",fontWeight:700,padding:"0.15em",marginRight:"0.15em"}}),f=e.scope("customized").configure({displayTime:!0,displayDate:!0,scopeStyle:{backgroundColor:"#474747",borderRadius:"3px",color:"#a0bef2",fontWeight:700,fontStyle:"italic",padding:"0.15em",textDecoration:"underline"},verbose:!0}),g=f.createScope("nested",{scopeStyle:{color:"#393ac1"}});return d(c,c,g)}a=a&&a.hasOwnProperty("default")?a["default"]:a;const f={a:!0,b:{c:!1},d:18,e:"hello"};if(e(a),a.environment.browser){const b=document.getElementById("output"),c={write(a){b.innerHTML+=a}};e(a,{stream:c,outputType:"html"})}});
+//# sourceMappingURL=index.js.map

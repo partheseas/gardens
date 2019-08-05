@@ -1,5 +1,3 @@
-import gardens from '..';
-
 function wait( ms ) {
   return new Promise( fulfill => setTimeout( () => fulfill(), ms ) );
 }
@@ -14,45 +12,38 @@ const obj = {
 };
 
 async function runTest( garden, next ) {
-  garden.log( true );
-  garden.log( 4 );
-  garden.log( obj );
-  garden.log( 'Function:', x => x + 5 );
-  garden.log( 'RegExp:', /hello/ig );
-  garden.log( 'Object:', obj, 'Boolean:', true );
-  garden.success( 'Hello champion!' );
-  garden.debug( 'Hello debug sailor?' );
-  garden.warning( 'Hello warning!' );
-  garden.warn( 'Hello warn!' );
-  garden.fail( 'Oh no!', '\n' );
+  const {
+    log, info, success, debug, warning, warn, fail,
+    count, countReset, time, timeEnd
+  } = garden.bound();
 
-  garden.count();
-  garden.count();
-  garden.count( null, 'Should be the same counter as the two above' );
+  info( 'Attempting to get a bound instance of a bound garden should warn and return null.' );
+  garden.bound().bound();
 
-  garden.count( 'count', 'Should start at 1' );
-  garden.count( 'count', 'because it uses a string' );
+  garden.assert( true );
+  garden.throws( () => garden.assert( false ) );
+  garden.throws( () => garden.assert_eq( 1, 2 ) );
+  garden.deny( false );
+  garden.throws( () => garden.deny( true ) );
+  // There's no problem with just returning a boolean so the inner check
+  // will throw. Because that throws, the outer check will catch it and continue.
+  garden.throws( () => garden.throws( () => true ) );
 
-  garden.count( 2 );
-  garden.count( 2 );
+  garden.styled( 'This text should be styled!\n', {
+    color: '#49de5a'
+  });
 
-  const secret = Symbol( 'sailor' );
-  garden.count( secret );
-  garden.count( secret, '\n' );
-
-  garden.time( 3 );
-  garden.timeEnd( 3 );
-
-  garden.time( '333ms' );
-  await wait( 333 );
-  garden.timeEnd( '333ms' );
-
-  const immediate = Symbol( 'immediate' );
-  garden.time( immediate );
-  garden.time( immediate );
-  garden.timeEnd( immediate );
-  garden.timeEnd( immediate );
-  garden.timeEnd( immediate, '\n' ); // Should only throw warning on third time
+  log( true );
+  log( 4 );
+  log( obj );
+  log( 'Function:', x => x + 5 );
+  log( 'RegExp:', /hello/ig );
+  log( 'Object:', obj, 'Boolean:', true );
+  success( 'Hello champion!' );
+  debug( 'Hello debug sailor?' );
+  warning( 'Hello warning!' );
+  warn( 'Hello warn!' );
+  fail( 'Oh no!', '\n' );
 
   garden.trace( 'This should trace, but only when verbose' );
 
@@ -62,20 +53,42 @@ async function runTest( garden, next ) {
 
   garden.catch( 'This should create an error' );
 
-  garden.assert( true );
-  garden.throws( () => garden.assert( false ) );
-  garden.assert_eq( 1, 1 );
-  garden.throws( () => garden.assert_eq( 1, 2 ) );
-  garden.deny( false );
-  garden.throws( () => garden.deny( true ) );
-  // There's no problem with just returning a boolean so the inner check
-  // will throw. Because that throws, the outer check will catch it and continue.
-  garden.throws( () => garden.throws( () => true ) );
+  count();
+  count();
+  count( null, 'Should be the same counter as the two above' );
+
+  count( 'count', 'Should start at 1' );
+  count( 'count', 'because it uses a string' );
+
+  count( 2 );
+  count( 2 );
+  info( 'Resetting count...' );
+  countReset( 2 );
+  count( 2 );
+  count( 2 );
+
+  const secret = Symbol( 'sailor' );
+  count( secret );
+  count( secret, '\n' );
+
+  time( 3 );
+  timeEnd( 3 );
+
+  time( '333ms' );
+  await wait( 333 );
+  timeEnd( '333ms' );
+
+  const immediate = Symbol( 'immediate' );
+  time( immediate );
+  time( immediate );
+  timeEnd( immediate );
+  timeEnd( immediate );
+  timeEnd( immediate, '\n' ); // Should only throw warning on third time
 
   next();
 }
 
-export function testGardens( output, ...list ) {
+function testGardens( output, ...list ) {
   if ( list.length < 1 ) throw new Error( 'No garden given!' );
 
   output.info( 'Warming up for tests' );
@@ -100,7 +113,7 @@ export function testGardens( output, ...list ) {
   });
 }
 
-export default function ( options ) {
+export default function tests( gardens, options ) {
   const fresh = gardens.createScope( null, options );
 
   const manager = fresh.createManager( 'manager', {
