@@ -27,13 +27,13 @@ export class Garden {
   private options: GardenOptions;
   private _times: TimesObject;
   private _counts: CountsObject;
-
-  configure( update: Partial<GardenOptions> ): this;
-
-  private _checkOptions( update: GardenOptions ): void;
   
   createScope( scope?: string, options?: GardenOptions ): Garden;
   createManager( scope: string, options?: GardenOptions ): Manager;
+  bound(): Omit<this, 'createScope' | 'createManager' | 'bound'>;
+
+  configure( update: Partial<GardenOptions> ): this;
+  private _checkOptions( update: GardenOptions ): void;
 
   assert( value: boolean, ...messages: any[] ): void;
   assert_eq( a: any, b: any, ...messages: any[] ): void;
