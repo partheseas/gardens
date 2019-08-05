@@ -11,4 +11,4 @@ node_modules
 
 # Builds
 dist
-bad_tests/index.js*
+bad_tests/index.*
