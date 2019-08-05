@@ -2,8 +2,10 @@ export as namespace gardens;
 
 export interface Environment {
   browser: boolean,
+  reactNative: boolean,
   electron: boolean,
   node: boolean,
+  deno: boolean,
   performance: any,
   readonly defaultOutputType: OutputType
 }
@@ -26,11 +28,11 @@ export class Garden {
   private _times: TimesObject;
   private _counts: CountsObject;
 
-  configure( update: GardenOptions ): this;
+  configure( update: Partial<GardenOptions> ): this;
 
   private _checkOptions( update: GardenOptions ): void;
   
-  createScope( scope: string, options?: GardenOptions ): Garden;
+  createScope( scope?: string, options?: GardenOptions ): Garden;
   createManager( scope: string, options?: GardenOptions ): Manager;
 
   assert( value: boolean, ...messages: any[] ): void;
@@ -61,6 +63,7 @@ export class Garden {
   time( name: Name | null ): void;
   timeEnd( name: Name | null, ...messages: any[] ): void;
   count( name: Name | null, ...messages: any[] ): void;
+  countReset( name: Name ): void;
 
   private _scopePrefix( outputType: OutputType ): StyledMessage[];
   private _print( type: PrintType, ...messages: any[] ): void;
@@ -68,26 +71,31 @@ export class Garden {
   private _transform( output: StyledMessage[] ): any[];
 }
 
-// These types are correct, but are unsupported by TypeScript and will cause errors
-// to be thrown from tsc. Since these are only interal types maybe they should be
-// removed and replaced with any in a future release? At least temporarily?
-interface TimesObject {
-  [ name: Name ]: number[]
-}
+// These are the correct types, but are unsupported by TypeScript and will cause errors
+// to be thrown from tsc. If and when this ever gets fixed, we should go back to using
+// these types again.
 
-interface CountsObject {
-  [ name: Name ]: number
-}
+// interface TimesObject {
+//   [ name: Name ]: number[]
+// }
+// interface CountsObject {
+//   [ name: Name ]: number
+// }
+
+// These types are far less specific, but they actually compile without throwing errors.
+type TimesObject = object;
+type CountsObject = object;
 
 export interface GardenOptions {
-  readonly scope?: string,
-  stream?: WritableStreamish,
-  outputType?: OutputType,
-  timingPrecision?: number,
-  scopeStyle?: CssObject,
-  verbose?: boolean,
-  displayTime?: boolean,
-  displayDate?: boolean
+  readonly scope: string,
+  stream: WritableStreamish,
+  outputType: OutputType,
+  supportsColor: boolean,
+  timingPrecision: number,
+  scopeStyle: CssObject,
+  verbose: boolean,
+  displayTime: boolean,
+  displayDate: boolean
 }
 
 export interface WritableStreamish {
@@ -104,7 +112,8 @@ export type CssObject = object;
 
 export type Name =
   | symbol
-  | string;
+  | string
+  | number;
 
 interface PrintType {
   type: string,

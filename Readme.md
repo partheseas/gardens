@@ -1,16 +1,21 @@
 # gardens
 ![package version](https://img.shields.io/badge/dynamic/json.svg?color=92db61&label=gardens&query=%24.version&url=https%3A%2F%2Funpkg.io%2Fgardens%2Fpackage.json&prefix=v)
 ![stability](https://img.shields.io/badge/stability-release-66f29a.svg)
+[![build status](https://travis-ci.org/partheseas/gardens.svg?branch=master)](https://travis-ci.org/partheseas/gardens)
 
-Using gardens makes it easier to handle your code by giving you the ability to
+Using gardens makes it easier to handle your logging code by giving you the ability to
 break your output into scopes and a unified way to handle errors. It supports
 nested scopes, custom colors, time stamps, HTML output, and many other fun things!
-A garden can be used interchangeably with `console`, and will work in
-Node.js and all modern browsers.
 
-- Chrome, Safari, Firefox, and Edge <sub>(at least the Chromium based version)</sub>
+A garden can be used interchangeably with `console`, and works basically
+anywhere that JavaScript can run. If you want to add support for an environment that
+I don't know about feel free to open an issue!
+
+| <img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/edge/edge_48x48.png" alt="IE / Edge" width="24px" height="24px" /></br>Edge | <img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/firefox/firefox_48x48.png" alt="Firefox" width="24px" height="24px" /></br>Firefox | <img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/chrome/chrome_48x48.png" alt="Chrome" width="24px" height="24px" /></br>Chrome | <img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/safari/safari_48x48.png" alt="Safari" width="24px" height="24px" /></br>Safari | <img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/opera/opera_48x48.png" alt="Opera" width="24px" height="24px" /></br>Opera | <img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/electron/electron_48x48.png" alt="Electron" width="24px" height="24px" /></br>Electron |
+| --------- | --------- | --------- | --------- | --------- | --------- |
 - Node.js
-- Electron
+- Deno
+- React Native
 
 ![macOS Screenshot](/media/gardens.png)
 
@@ -21,11 +26,22 @@ yarn add gardens
 You should use Yarn and [pnp](https://yarnpkg.com/en/docs/pnp).
 
 ## Usage
+Depending on where you're using Gardens, you might need to do any of the following...
 ```JavaScript
-import gardens from 'gardens'
-
-const named = gardens.createScope( 'named garden!' )
-const manager = gardens.createManager( 'project' )
+// CommonJS (Node.js, Electron, React Native)
+const gardens = require( 'gardens' );
+```
+```JavaScript
+// Bundled ES6 (Browsers, Rollup, Webpack, Parcel, etc.)
+import gardens from 'gardens';
+```
+```JavaScript
+// ES6 (Deno)
+import gardens from 'https://unpkg.com/gardens@^4/lib/deno.js';
+```
+```JavaScript
+// <script> (Browsers)
+<script type="application/javascript" src="https://unpkg.com/gardens@^4"></script>
 ```
 
 ### Managers
@@ -37,14 +53,18 @@ Configurations can be set per instance, and updated at any time. Each garden
 has the following options.
 
 Note: The `scopeStyle` option is used to configure the style of the scope name when printed.
-In node.js it supports the `backgroundColor`, `color`, `fontStyle`, `fontWeight`, and `textDecoration`
-CSS properties. Support on the browser should technically be any CSS property, but
+In Node.js it supports the `backgroundColor`, `color`, `fontStyle`, `fontWeight`, and `textDecoration`
+CSS properties. Support in browsers should technically be any CSS property, but
 the exact support depends on the implementation of the browser itself.
 
 ```JavaScript
 garden.configure({
-  stream: WritableStream,
-  outputType: 'ansi', 'console', 'html' or 'text',
+  stream: {
+    write() {
+      // Anything with a write function will work
+    }
+  },
+  outputType: 'ansi', // or 'console', 'html' or 'text',
   scopeStyle: {
     color: '#34dfcb',
     fontWeight: 700

@@ -1,16 +1,16 @@
-import minify from 'rollup-plugin-babel-minify'
+import minify from 'rollup-plugin-babel-minify';
 
 export default [{
-  input: 'lib/gardens.js',
+  input: 'lib/umd.js',
   external: [
     'chalk',
     'perf_hooks',
     'supports-color',
     'util'
   ],
-  plugins: [
-    minify({ comments: false })
-  ],
+  // plugins: [
+  //   minify({ comments: false })
+  // ],
   output: {
     format: 'umd',
     file: 'dist/gardens.js',
@@ -18,14 +18,25 @@ export default [{
     sourcemap: true
   }
 }, {
-  input: 'tests/index.js',
+  input: 'lib/reactnative.js',
+  // plugins: [
+  //   minify({ comments: false })
+  // ],
+  output: {
+    format: 'cjs',
+    file: 'dist/reactnative.js',
+    name: 'gardens',
+    sourcemap: true
+  }
+}, {
+  input: 'bad_tests/index.js',
   external: [ 'gardens' ],
   plugins: [
     minify({ comments: false })
   ],
   output: {
     format: 'umd',
-    file: 'tests/index.bundle.js',
+    file: 'bad_tests/index.bundle.js',
     name: 'tests',
     sourcemap: true,
     globals: {
@@ -33,4 +44,4 @@ export default [{
     },
     exports: 'named'
   }
-}]
+}];
