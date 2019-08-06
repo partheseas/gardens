@@ -5,8 +5,7 @@
   "description": "A useful logging utility for JavaScript everywhere. 🎉",
   "license": "MIT",
   "files": [
-    "dist/*",
-    "lib/*.d.ts"
+    "dist/*"
   ],
   "main": "dist/gardens.js",
   "types": "dist/types/umd.d.ts",
