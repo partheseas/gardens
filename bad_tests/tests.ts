@@ -1,5 +1,5 @@
 function wait( ms: number ) {
-  return new Promise( fulfill => setTimeout( () => fulfill(), ms ) );
+  return new Promise( fulfill => setTimeout( fulfill, ms ) );
 }
 
 const obj = {

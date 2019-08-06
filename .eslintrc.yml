@@ -138,4 +138,7 @@ rules:
   symbol-description: error
   template-tag-spacing: error
   valid-typeof: error
-  yoda: error
+  yoda:
+    - error
+    - never
+    - exceptRange: true
