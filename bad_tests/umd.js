@@ -1,5 +1,5 @@
-import tests from './tests';
 import gardens from '..';
+import tests from './tests';
 
 tests( gardens );
 

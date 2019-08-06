@@ -3,9 +3,11 @@
 ![stability](https://img.shields.io/badge/stability-release-66f29a.svg)
 [![build status](https://travis-ci.org/partheseas/gardens.svg?branch=master)](https://travis-ci.org/partheseas/gardens)
 
-Using gardens makes it easier to handle your logging code by giving you the ability to
-break your output into scopes and a unified way to handle errors. It supports
-nested scopes, custom colors, time stamps, HTML output, and many other fun things!
+Using gardens makes it easier to handle your log output and debugging code by giving you
+the ability to break your output into named scopes, handle errors in a unified way, and use
+the same library for it all regardless of what your deployment target is. It supports
+scope nesting, custom colors and styles, time stamps, high resolution timing,
+HTML output, and many other fun things!
 
 A garden can be used interchangeably with `console`, and works basically
 anywhere that JavaScript can run. If you want to add support for an environment that
