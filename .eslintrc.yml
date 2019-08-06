@@ -1,8 +1,17 @@
 env:
   es6: true
-parser: babel-eslint
+parser: "@typescript-eslint/parser"
+parserOptions:
+  sourceType: module
+plugins:
+  - "@typescript-eslint"
 rules:
-  # General rules
+  # TypeScript
+  "@typescript-eslint/no-inferrable-types": error
+  "@typescript-eslint/no-unused-vars": error
+  "@typescript-eslint/semi": error
+  "@typescript-eslint/type-annotation-spacing": error
+  # General
   arrow-body-style: error
   arrow-parens:
     - error
@@ -28,7 +37,7 @@ rules:
       - TemplateLiteral
   keyword-spacing: error
   linebreak-style: error
-  lines-between-class-members: error
+  # lines-between-class-members: error
   max-len:
     - warn
     - code: 100
@@ -73,7 +82,7 @@ rules:
   no-undefined: error
   no-unexpected-multiline: error
   no-unreachable: error
-  no-unused-vars: error
+  # no-unused-vars: error
   no-useless-computed-key: error
   no-useless-concat: error
   no-useless-escape: error
@@ -108,7 +117,7 @@ rules:
     - allowTemplateLiterals: true
   require-await: error
   require-yield: error
-  semi: error
+  # semi: error
   semi-spacing: error
   semi-style: error
   space-before-function-paren:

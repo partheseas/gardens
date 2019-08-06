@@ -1,4 +1,4 @@
-function wait( ms ) {
+function wait( ms: number ) {
   return new Promise( fulfill => setTimeout( () => fulfill(), ms ) );
 }
 
@@ -13,7 +13,7 @@ const obj = {
 
 async function runTest( garden, next ) {
   const {
-    log, info, success, debug, warning, warn, fail,
+    log, info, success, debug, warning, warn, fail, // pending,
     count, countReset, time, timeEnd
   } = garden.bound();
 
@@ -40,11 +40,24 @@ async function runTest( garden, next ) {
   log( 'RegExp:', /hello/ig );
   log( 'Object:', obj, 'Boolean:', true );
   success( 'Hello champion!' );
-  debug( 'Hello debug sailor?' );
   warning( 'Hello warning!' );
   warn( 'Hello warn!' );
   fail( 'Oh no!', '\n' );
 
+  // await pending( 'Fetching resource', fulfill => {
+  //   setTimeout( fulfill, 1000 );
+  // });
+
+  // try {
+  //   await pending( 'Fetching resource', ( fulfill, reject ) => {
+  //     setTimeout( reject, 300 );
+  //   });
+  // }
+  // catch {
+  //   fail( 'Resource failed to load.' );
+  // }
+
+  debug( 'Hello debug sailor?' );
   garden.trace( 'This should trace, but only when verbose' );
 
   garden.error( 'This is an error!' );
@@ -113,7 +126,7 @@ function testGardens( output, ...list ) {
   });
 }
 
-export default function tests( gardens, options ) {
+export default function tests( gardens, options? ) {
   const fresh = gardens.createScope( null, options );
 
   const manager = fresh.createManager( 'manager', {
@@ -143,7 +156,8 @@ export default function tests( gardens, options ) {
 
   const nestedGarden = customGarden.createScope( 'nested', {
     scopeStyle: {
-      color: '#393ac1'
+      color: '#393ac1',
+      textDecoration: 'line-through underline'
     }
   });
 

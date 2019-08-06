@@ -5,9 +5,23 @@ if ( typeof console === 'undefined' ) {
 }
 
 // The .js extension is necessary for compatibility with Deno.
-import Manager from './managers.js';
+import Manager from './managers.ts';
 
-const environment = {
+interface EnvironmentConfiguration {
+  defaultOutputType: OutputType,
+  defaultStream: WritableStreamish,
+  debug: string,
+  moveCursorBy: ( x: number, y: number ) => void,
+  inspect: ( item: any, options: GardenOptions ) => string,
+  performance: {
+    now: () => number
+  },
+  style: ( text: string, style: CssObject ) => MessageContainer,
+  supportsColor: boolean,
+  timingPrecision: number
+}
+
+const environment: EnvironmentConfiguration = {
   defaultOutputType: 'console',
   defaultStream: {
     write: console.log
@@ -26,7 +40,8 @@ const environment = {
   timingPrecision: 0
 };
 
-function colorize( scope ) {
+// This should actually be a string, but TypeScript gets mad for some reason?
+function colorize( scope: any ): string {
   let r = 50;
   let g = 50;
   let b = 50;
@@ -39,13 +54,13 @@ function colorize( scope ) {
   return `#${r.toString( 16 )}${g.toString( 16 )}${b.toString( 16 )}`;
 }
 
-function toString( from, fallback ) {
+function toString( from: any, fallback: string ): string {
   return from != null && typeof from.toString === 'function'
     ? from.toString()
     : fallback;
 }
 
-function inspect( item ) {
+function inspect( item: any ): string {
   switch ( typeof item ) {
     case 'boolean':
     case 'function':
@@ -60,8 +75,96 @@ function inspect( item ) {
   }
 }
 
+type BoundGarden = Exclude<Garden, 'createScope' | 'createManager' | 'bound'>;
+
+export interface GardenOptions {
+  readonly scope: string,
+  stream: WritableStreamish,
+  outputType: OutputType,
+  supportsColor: boolean,
+  timingPrecision: number,
+  scopeStyle: CssObject,
+  verbose: boolean,
+  displayTime: boolean,
+  displayDate: boolean
+}
+
+export interface ManagerOptions extends GardenOptions {
+  useProxy: boolean;
+}
+
+export interface WritableStreamish {
+  write( ...messages: any[] ): any
+}
+
+export type OutputType =
+  | 'ansi'
+  | 'console'
+  | 'html'
+  | 'text';
+
+export interface CssObject {
+  backgroundColor?: string,
+  color?: string,
+  fontStyle?: string,
+  fontWeight?: number,
+  textDecoration?: string
+  [ property: string ]: string | number
+}
+
+export type Name =
+  | symbol
+  | string
+  | number;
+
+interface PrintType {
+  type: string,
+  style?: CssObject
+}
+
+type MessageContainer = RawMessage | StyledMessage;
+
+interface RawMessage {
+  raw: any
+}
+
+interface StyledMessage {
+  text: string,
+  // Only used for outputType 'console'. The CSS string that corresponds to
+  // `text` and will be passed to console.log
+  format?: string
+}
+
+// These are the correct types, but are unsupported by TypeScript and will cause errors
+// to be thrown from tsc. If and when this ever gets fixed, we should go back to using
+// these types again.
+
+// interface TimesObject {
+//   [ name: Name ]: number[]
+// }
+// interface CountsObject {
+//   [ name: Name ]: number
+// }
+
+// These types are far less specific, but they actually compile without throwing errors.
+type TimesObject = object;
+type CountsObject = object;
+
 export default class Garden {
-  constructor( scope, options, _super ) {
+  private _super: Garden;
+  options: GardenOptions;
+
+  private _times: TimesObject;
+  private _counts: CountsObject;
+
+  /**
+   *
+   * @hidden
+   * @param scope
+   * @param options
+   * @param _super
+   */
+  constructor( scope?: string, options?: Partial<GardenOptions>, _super?: Garden ) {
     if ( _super ) this._super = _super;
 
     this.options = {
@@ -72,6 +175,9 @@ export default class Garden {
       outputType: this._super
         && this._super.options.outputType
         || environment.defaultOutputType,
+      supportsColor: this._super
+        && this._super.options.supportsColor
+        || environment.supportsColor,
       timingPrecision: this._super
         && this._super.options.timingPrecision
         || environment.timingPrecision,
@@ -90,22 +196,39 @@ export default class Garden {
     this._counts = {};
   }
 
-  static configureEnvironment( update ) {
+  /**
+   *
+   * @hidden
+   * @param update
+   */
+  static configureEnvironment( update: Partial<EnvironmentConfiguration> ) {
     // We use this instead of Object.assign so that we can pass keys in with
     // values of null/false/undefined and not overwrite the defaults.
     for ( const [ key, setting ] of Object.entries( update ) ) {
-      if ( setting == null ) environment[ key ] = setting;
+      if ( setting != null ) environment[ key ] = setting;
     }
   }
 
-  createScope( scope, options ) {
+  /**
+   *
+   * @category Utility
+   * @param scope
+   * @param options
+   */
+  createScope( scope?: string, options?: Partial<GardenOptions> ) {
     if ( typeof scope !== 'string' && scope != null )
       throw new Error( 'scope must be a string or undefined' );
 
     return new Garden( scope, options, this );
   }
 
-  createManager( scope, options ) {
+  /**
+   *
+   * @category Utility
+   * @param scope
+   * @param options
+   */
+  createManager( scope: string, options?: Partial<ManagerOptions> ) {
     const { useProxy } = options;
     if ( typeof scope !== 'string' )
       throw new Error( 'manager name must be a string' );
@@ -113,7 +236,35 @@ export default class Garden {
     return new Manager( this.createScope( scope, options ), { useProxy });
   }
 
-  bound() {
+  /**
+   * Returns a bound version of the garden, meaning that the methods do not need
+   * need to be directly attached to the garden to function properly.
+   *
+   * For example, the following is how a typically garden would behave if you
+   * detached one of its methods and tried to use it.
+   * ```JavaScript
+   * const { debug } = gardens.createScope();
+   * debug( 'Hello!' );
+   * ❌ TypeError: Cannot read property {...} of undefined "this".
+   * ```
+   *
+   * A bound garden can be used that way with no problem!
+   * ```JavaScript
+   * const { debug } = gardens.createScope().bound();
+   * debug( 'Hello!' );
+   * → [debug] Hello!
+   * ```
+   *
+   * It's also worth noting that when using a [[Manager]], gardens bound by default.
+   * ```JavaScript
+   * const { debug } = manager.scope( 'x', 'y', 'z' );
+   * debug( 'Hello!' );
+   * → [x][y][z][debug] Hello!
+   * ```
+   *
+   * @category Utility
+   */
+  bound(): BoundGarden {
     return new Proxy( this, {
       get( self, method ) {
         // Cannot get a bound instance of a bound garden, or use a
@@ -132,15 +283,25 @@ export default class Garden {
     });
   }
 
-  configure( update ) {
+  /**
+   *
+   * @category Utility
+   * @param update
+   */
+  configure( update: Partial<GardenOptions> ) {
     this._checkOptions( update );
     return this;
   }
 
-  _checkOptions( update ) {
+  /**
+   *
+   * @hidden
+   * @param update
+   */
+  private _checkOptions( update: Partial<GardenOptions> ) {
     if ( update.stream && update.stream.write ) {
       this.options.stream = update.stream;
-      this.outputType = 'text';
+      this.options.outputType = 'text';
     }
 
     if ( update.outputType ) {
@@ -160,7 +321,6 @@ export default class Garden {
       this.options.timingPrecision = update.timingPrecision;
     }
 
-    if ( update._superScope ) this.options._superScope = update._superScope;
     if ( update.scopeStyle )  Object.assign( this.options.scopeStyle, update.scopeStyle );
 
     if ( 'verbose' in update ) this.options.verbose = !!update.verbose;
@@ -168,19 +328,46 @@ export default class Garden {
     if ( 'displayTime' in update ) this.options.displayTime = !!update.displayTime;
   }
 
-  assert( value, ...messages ) {
+  /**
+   *
+   * @category Assertion
+   * @param value
+   * @param messages
+   */
+  assert( value: any, ...messages: any[] ) {
     if ( !value ) throw this.assertionerror( `${value} is not truthy!`, ...messages );
   }
 
-  assert_eq( a, b, ...messages ) {
-    if ( a !== b ) throw this.assertionerror( `${a} is not equal to ${b}!`, ...messages );
+  /**
+   *
+   * @category Assertion
+   * @param given
+   * @param expected
+   * @param messages
+   */
+  assert_eq( given: any, expected: any, ...messages: any[] ) {
+    if ( given !== expected ) {
+      throw this.assertionerror( `${given} is not equal to ${expected}!`, ...messages );
+    }
   }
 
-  deny( value, ...messages ) {
+  /**
+   *
+   * @category Assertion
+   * @param value
+   * @param messages
+   */
+  deny( value: any, ...messages: any[] ) {
     if ( value ) throw this.assertionerror( `${value} is not falsy!`, ...messages );
   }
 
-  throws( throws, ...messages ) {
+  /**
+   *
+   * @category Assertion
+   * @param throws
+   * @param messages
+   */
+  throws( throws: () => never, ...messages: any[] ) {
     try {
       throws();
     }
@@ -191,39 +378,84 @@ export default class Garden {
     throw this.assertionerror( `Function didn't throw!`, ...messages );
   }
 
-  raw( ...messages ) {
+  /**
+   *
+   * @category Unscoped
+   * @param messages
+   */
+  raw( ...messages: any[] ) {
     messages.forEach( message => this.options.stream.write( message ) );
   }
 
-  styled( message, style ) {
+  /**
+   *
+   * @category Unscoped
+   * @param message
+   * @param style
+   */
+  styled( message: string, style: CssObject ) {
     this.options.stream.write( ...this._transform( [ this._style( message, style ) ] ) );
   }
 
-  log( ...messages ) {
+  /**
+   *
+   * @category Informational
+   * @param messages
+   */
+  log( ...messages: any[] ) {
     this._print({ type: 'log' }, ...messages );
   }
 
-  info( ...messages ) {
+  /**
+   *
+   * @category Informational
+   * @param messages
+   */
+  info( ...messages: any[] ) {
     this._print({ type: 'info', style: { color: '#242f91' }  }, ...messages );
   }
 
-  success( ...messages ) {
+  /**
+   *
+   * @category Informational
+   * @param messages
+   */
+  success( ...messages: any[] ) {
     this._print({ type: 'success', style: { color: '#40a456' } }, ...messages );
   }
 
-  warning( ...messages ) {
+  /**
+   *
+   * @category Informational
+   * @param messages
+   */
+  warning( ...messages: any[] ) {
     this._print({ type: 'warning', style: { color: '#ecb448' } }, ...messages );
   }
 
-  warn( ...messages ) {
+  /**
+   *
+   * @category Informational
+   * @param messages
+   */
+  warn( ...messages: any[] ) {
     this.warning( ...messages );
   }
 
-  failure( ...messages ) {
+  /**
+   * @category Informational
+   *
+   */
+  failure( ...messages: any[] ) {
     this._print({ type: 'failure', style: { color: '#ff1212' } }, ...messages );
   }
 
-  fail( ...messages ) {
+  /**
+   *
+   * @category Informational
+   * @param messages
+   */
+  fail( ...messages: any[] ) {
     this.failure( ...messages );
   }
 
@@ -246,7 +478,12 @@ export default class Garden {
   //   });
   // }
 
-  debug( ...messages ) {
+  /**
+   *
+   * @category Debugging
+   * @param messages
+   */
+  debug( ...messages: any[] ) {
     if ( this.options.verbose ) {
       this._print({ type: 'debug', style: { color: '#ff8800' } }, ...messages );
       return true;
@@ -254,7 +491,13 @@ export default class Garden {
     return false;
   }
 
-  trace( errorMessage, ...messages ) {
+  /**
+   *
+   * @category Debugging
+   * @param errorMessage
+   * @param messages
+   */
+  trace( errorMessage: string, ...messages: any[] ) {
     if ( this.options.verbose ) {
       const error = new Error( errorMessage );
 
@@ -268,7 +511,13 @@ export default class Garden {
     return false;
   }
 
-  error( errorMessage, ...messages ) {
+  /**
+   *
+   * @category Error
+   * @param errorMessage
+   * @param messages
+   */
+  error( errorMessage: string, ...messages: any[] ) {
     const error = new Error( errorMessage );
     this._print(
       { type: 'error', style: { color: '#ff1212' } },
@@ -277,7 +526,13 @@ export default class Garden {
     return error;
   }
 
-  typeerror( errorMessage, ...messages ) {
+  /**
+   *
+   * @category Error
+   * @param errorMessage
+   * @param messages
+   */
+  typeerror( errorMessage: string, ...messages: any[] ) {
     const error = new TypeError( errorMessage );
     this._print(
       { type: 'type error', style: { color: '#ff1212' } },
@@ -286,7 +541,13 @@ export default class Garden {
     return error;
   }
 
-  referenceerror( errorMessage, ...messages ) {
+  /**
+   *
+   * @category Error
+   * @param errorMessage
+   * @param messages
+   */
+  referenceerror( errorMessage: string, ...messages: any[] ) {
     const error = new ReferenceError( errorMessage );
     this._print(
       { type: 'reference error', style: { color: '#ff1212' } },
@@ -295,7 +556,13 @@ export default class Garden {
     return error;
   }
 
-  assertionerror( errorMessage, ...messages ) {
+  /**
+   *
+   * @category Error
+   * @param errorMessage
+   * @param messages
+   */
+  assertionerror( errorMessage: string, ...messages: any[] ) {
     const error = new Error( errorMessage );
     this._print(
       { type: 'assertion error', style: { color: '#ff1212' } },
@@ -304,8 +571,15 @@ export default class Garden {
     return error;
   }
 
-  catch( error, ...messages ) {
-    if ( !error || !error.stack ) error = new Error( error );
+  /**
+   * @category Error
+   *
+   */
+  catch( errorMessage: Error | string, ...messages: any[] ): Error {
+    const error = errorMessage instanceof Error
+      ? errorMessage
+      : new Error( errorMessage );
+
     if ( this.options.verbose ) {
       this._print(
         { type: 'caught error', style: { color: '#ff1212' } },
@@ -313,10 +587,16 @@ export default class Garden {
         ...messages
       );
     }
+
     return error;
   }
 
-  time( name ) {
+  /**
+   *
+   * @category Informational
+   * @param name
+   */
+  time( name: Name ) {
     if ( arguments.length > 1 ) {
       this.warn(
         `'.time' should only take one argument. Pass additional arguments to '.timeEnd'.`
@@ -331,7 +611,13 @@ export default class Garden {
     else this._times[ name ].push( environment.performance.now() );
   }
 
-  timeEnd( name, ...messages ) {
+  /**
+   *
+   * @category Informational
+   * @param name
+   * @param messages
+   */
+  timeEnd( name: Name, ...messages: any[] ) {
     // Count undefined and null both as null
     if ( name == null ) name = null;
 
@@ -354,7 +640,13 @@ export default class Garden {
     );
   }
 
-  count( name, ...messages ) {
+  /**
+   *
+   * @category Informational
+   * @param name
+   * @param messages
+   */
+  count( name: Name, ...messages: any[] ) {
     // Count undefined and null both as null
     if ( name == null ) name = null;
 
@@ -365,14 +657,24 @@ export default class Garden {
     this._print({ type: toString( name, 'count' ) }, `${count} ${pluralOrSingular}`, ...messages );
   }
 
-  countReset( name ) {
+  /**
+   *
+   * @category Informational
+   * @param name
+   */
+  countReset( name: Name ) {
     // Count undefined and null both as null
     if ( name == null ) name = null;
 
     this._counts[ name ] = 0;
   }
 
-  _scopePrefix( outputType = this.options.outputType ) {
+  /**
+   *
+   * @hidden
+   * @param outputType
+   */
+  private _scopePrefix( outputType = this.options.outputType ): MessageContainer[] {
     const prefix = this._super
       ? this._super._scopePrefix( outputType )
       : [];
@@ -383,7 +685,13 @@ export default class Garden {
     return prefix;
   }
 
-  _print({ type, style }, ...messages ) {
+  /**
+   *
+   * @hidden
+   * @param printType
+   * @param messages
+   */
+  private _print({ type, style }: PrintType, ...messages: any[] ) {
     const output = this._scopePrefix();
 
     output.push( this._style( `[${type}]`, style || { color: '#5b5b5b' }) );
@@ -404,7 +712,14 @@ export default class Garden {
     this.options.stream.write( ...this._transform( output ) );
   }
 
-  _style( text, style, outputType = this.options.outputType ) {
+  /**
+   *
+   * @hidden
+   * @param text
+   * @param style
+   * @param outputType
+   */
+  private _style( text: string, style?: CssObject, outputType = this.options.outputType ): MessageContainer {
     if ( outputType === 'ansi' || outputType === 'console' ) {
       return environment.supportsColor
         ? environment.style( text, style )
@@ -421,10 +736,19 @@ export default class Garden {
     }
   }
 
-  _transform( output ) {
+  /**
+   *
+   * @hidden
+   * @param output
+   */
+  private _transform( output: MessageContainer[] ) {
+    // The beginning text portion of the output
     let text = '';
-    const formats = [];
-    const raw = [];
+    // Potentially the CSS strings if the outputType is 'console' and
+    // color is supported
+    const formats: string[] = [];
+    // The raw objects to follow the initial string
+    const raw: any[] = [];
 
     // In the browser we preserve raw objects to preserve interactive inspection.
     // (Think of the expand/collapse arrows in pretty much ever browser's DevTools.)
@@ -436,11 +760,14 @@ export default class Garden {
       if ( 'raw' in part ) {
         if ( this.options.outputType === 'console' ) {
           raw.push( part.raw );
+          // Enforce all parts being raw
           allRaw = true;
           return;
         }
         else {
-          part.text = ` ${environment.inspect( part.raw, this.options )}`;
+          part = {
+            text: ` ${environment.inspect( part.raw, this.options )}`
+          };
         }
       }
 
@@ -472,6 +799,7 @@ export default class Garden {
     if ( this.options.outputType === 'ansi' || this.options.outputType === 'text' ) text += '\n';
     if ( this.options.outputType === 'html' ) text += '<br />';
 
+    // Arguments as the will be passed to the stream
     return [ text, ...formats, ...raw ];
   }
 }

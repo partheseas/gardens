@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "declaration": true,
+    "declarationDir": "dist/types",
+    "outDir": "dist",
+    "target": "esnext"
+  },
+  "include": [
+    "./lib/*.ts"
+  ],
+  "typedocOptions": {
+    "exclude": [ "lib/deno_rt.d.ts", "lib/deno.ts" ],
+    "excludeNotExported": true,
+    "ignoreCompilerErrors": true,
+    "mode": "file",
+    "out": "doc",
+    "readme": "none",
+    "theme": "minimal"
+  }
+}

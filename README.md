@@ -13,7 +13,7 @@ A garden can be used interchangeably with `console`, and works basically
 anywhere that JavaScript can run. If you want to add support for an environment that
 I don't know about feel free to open an issue!
 
-| <img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/edge/edge_48x48.png" alt="IE / Edge" width="24px" height="24px" /></br>Edge | <img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/firefox/firefox_48x48.png" alt="Firefox" width="24px" height="24px" /></br>Firefox | <img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/chrome/chrome_48x48.png" alt="Chrome" width="24px" height="24px" /></br>Chrome | <img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/safari/safari_48x48.png" alt="Safari" width="24px" height="24px" /></br>Safari | <img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/opera/opera_48x48.png" alt="Opera" width="24px" height="24px" /></br>Opera | <img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/electron/electron_48x48.png" alt="Electron" width="24px" height="24px" /></br>Electron |
+| <img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/edge/edge_48x48.png" alt="Edge" width="24px" height="24px" /></br>Edge | <img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/firefox/firefox_48x48.png" alt="Firefox" width="24px" height="24px" /></br>Firefox | <img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/chrome/chrome_48x48.png" alt="Chrome" width="24px" height="24px" /></br>Chrome | <img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/safari/safari_48x48.png" alt="Safari" width="24px" height="24px" /></br>Safari | <img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/opera/opera_48x48.png" alt="Opera" width="24px" height="24px" /></br>Opera | <img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/electron/electron_48x48.png" alt="Electron" width="24px" height="24px" /></br>Electron |
 | --------- | --------- | --------- | --------- | --------- | --------- |
 - Node.js
 - Deno
@@ -28,6 +28,8 @@ yarn add gardens
 You should use Yarn and [pnp](https://yarnpkg.com/en/docs/pnp).
 
 ## Usage
+- [Documentation](https://gardens.now.sh)
+
 Depending on where you're using Gardens, you might need to do any of the following...
 ```JavaScript
 // CommonJS (Node.js, Electron, React Native)
@@ -54,10 +56,11 @@ on their usage and why you should use them, read their [documentation](/doc/mana
 Configurations can be set per instance, and updated at any time. Each garden
 has the following options.
 
-Note: The `scopeStyle` option is used to configure the style of the scope name when printed.
-In Node.js it supports the `backgroundColor`, `color`, `fontStyle`, `fontWeight`, and `textDecoration`
-CSS properties. Support in browsers should technically be any CSS property, but
-the exact support depends on the implementation of the browser itself.
+Note: The `scopeStyle` option is used to configure the style of the scope name when
+printed. In Node.js and Deno it supports the `backgroundColor`, `color`, `fontStyle`,
+`fontWeight`, and `textDecoration` CSS properties. Support in browsers should
+technically be any CSS property, but the exact support depends on the implementation
+of the browser itself.
 
 ```JavaScript
 garden.configure({

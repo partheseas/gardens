@@ -1,14 +1,21 @@
 # macOS
 .DS_Store
 
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Builds
+.rpt2_cache
+bad_tests/index.*
+bad_tests/**/*.d.ts
+dist
+doc
+
 # Dependencies
 node_modules
 .pnp
-.pnp.js
 
-# Logs
-*.log
-
-# Builds
-dist
-bad_tests/index.*
+# Types
+lib/*.d.ts

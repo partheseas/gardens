@@ -1,15 +1,23 @@
+import typescript from 'rollup-plugin-typescript2';
 import minify from 'rollup-plugin-babel-minify';
 
 export default [{
-  input: 'lib/umd.js',
+  input: 'lib/umd.ts',
   external: [
     'chalk',
     'perf_hooks',
+    'readline',
     'supports-color',
     'util'
   ],
   plugins: [
-    minify({ comments: false })
+    typescript({
+      abortOnError: false,
+      useTsconfigDeclarationDir: true
+    }),
+    minify({
+      comments: false
+    })
   ],
   output: {
     format: 'umd',
@@ -18,9 +26,15 @@ export default [{
     sourcemap: true
   }
 }, {
-  input: 'lib/reactnative.js',
+  input: 'lib/reactnative.ts',
   plugins: [
-    minify({ comments: false })
+    typescript({
+      abortOnError: false,
+      useTsconfigDeclarationDir: true
+    }),
+    minify({
+      comments: false
+    })
   ],
   output: {
     format: 'cjs',
@@ -29,10 +43,20 @@ export default [{
     sourcemap: true
   }
 }, {
-  input: 'bad_tests/umd.js',
+  input: 'bad_tests/umd.ts',
   external: [ 'gardens' ],
   plugins: [
-    minify({ comments: false })
+    typescript({
+      abortOnError: false,
+      lib: [ 'dom' ],
+      tsconfigOverride: {
+        declaration: false,
+        lib: [ 'dom' ]
+      }
+    }),
+    minify({
+      comments: false
+    })
   ],
   output: {
     format: 'umd',

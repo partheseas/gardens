@@ -4,10 +4,10 @@ import tests from './tests';
 tests( gardens );
 
 if ( typeof document !== 'undefined' ) {
-  const output = document.getElementById( 'output' );
+  const container = document.getElementById( 'output' );
   const stream = {
-    write( string ) {
-      output.innerHTML += string;
+    write( output: string ) {
+      container.innerHTML += output;
     }
   };
 

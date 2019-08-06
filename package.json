@@ -9,7 +9,7 @@
     "lib/*.d.ts"
   ],
   "main": "dist/gardens.js",
-  "types": "lib/gardens.d.ts",
+  "types": "dist/types/umd.d.ts",
   "repository": "partheseas/gardens",
   "bugs": "https://github.com/partheseas/gardens/issues",
   "keywords": [
@@ -24,13 +24,19 @@
     "supports-color": "^6.1.0"
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^1.13.0",
+    "@typescript-eslint/parser": "^1.13.0",
     "ava": "^2.2.0",
     "babel-eslint": "^10.0.2",
     "eslint": "^6.1.0",
     "rollup": "^1.14.3",
-    "rollup-plugin-babel-minify": "^9.0.0"
+    "rollup-plugin-babel-minify": "^9.0.0",
+    "rollup-plugin-typescript2": "^0.22.1",
+    "typedoc": "^0.15.0",
+    "typescript": "^3.5.3"
   },
   "scripts": {
-    "test": "eslint lib && rollup -c && ava"
+    "now-build": "typedoc",
+    "test": "eslint --ext .js,.ts lib && rollup -c && ava"
   }
 }

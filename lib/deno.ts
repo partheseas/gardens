@@ -1,4 +1,4 @@
-import gardens from './garden.js';
+import gardens from './garden.ts';
 
 const hex = /^#[0-9a-f]{6}$/i;
 
