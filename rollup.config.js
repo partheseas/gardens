@@ -2,6 +2,8 @@ import typescript from 'rollup-plugin-typescript2';
 import minify from 'rollup-plugin-babel-minify';
 
 export default [{
+  // UMD: Browsers and Node.js
+  // =========================
   input: 'lib/umd.ts',
   external: [
     'chalk',
@@ -26,6 +28,8 @@ export default [{
     sourcemap: true
   }
 }, {
+  // CJS: React Native (barebones)
+  // =============================
   input: 'lib/reactnative.ts',
   plugins: [
     typescript({
@@ -43,15 +47,18 @@ export default [{
     sourcemap: true
   }
 }, {
+  // Integration Tests
+  // =================
   input: 'bad_tests/umd.ts',
   external: [ 'gardens' ],
   plugins: [
     typescript({
       abortOnError: false,
-      lib: [ 'dom' ],
+      // Even though we don't output declarations for tests, our override won't
+      // even be checked if we don't set this to true.
+      useTsconfigDeclarationDir: true,
       tsconfigOverride: {
         declaration: false,
-        lib: [ 'dom' ]
       }
     }),
     minify({

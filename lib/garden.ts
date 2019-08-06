@@ -228,7 +228,7 @@ export default class Garden {
    * @param scope
    * @param options
    */
-  createManager( scope: string, options?: Partial<ManagerOptions> ) {
+  createManager( scope: string, options: Partial<ManagerOptions> = { useProxy: true }) {
     const { useProxy } = options;
     if ( typeof scope !== 'string' )
       throw new Error( 'manager name must be a string' );
@@ -299,9 +299,15 @@ export default class Garden {
    * @param update
    */
   private _checkOptions( update: Partial<GardenOptions> ) {
-    if ( update.stream && update.stream.write ) {
-      this.options.stream = update.stream;
-      this.options.outputType = 'text';
+    if ( update.stream ) {
+      if ( typeof update.stream.write === 'function' ) {
+        this.options.stream = update.stream;
+        this.options.outputType = 'text';
+      }
+
+      else {
+        this.warn( 'Cannot set stream to an object without a write method.' );
+      }
     }
 
     if ( update.outputType ) {
@@ -719,7 +725,11 @@ export default class Garden {
    * @param style
    * @param outputType
    */
-  private _style( text: string, style?: CssObject, outputType = this.options.outputType ): MessageContainer {
+  private _style(
+    text: string,
+    style?: CssObject,
+    outputType = this.options.outputType
+  ): MessageContainer {
     if ( outputType === 'ansi' || outputType === 'console' ) {
       return environment.supportsColor
         ? environment.style( text, style )

@@ -92,6 +92,7 @@ text to keep things simple. If you want colors, be sure to set this option corre
 ### log, info, success, warn, warning, and fail
 These methods all just dump the arguments given out to the console like you would expect. The
 output is prefixed with the scope name and output type. (log, warning, etc.)
+
 ```JavaScript
 // These are all for general logging
 garden.log( 'message' )
@@ -105,6 +106,7 @@ garden.fail( 'oh no!' )
 ### styled
 Takes a string and a CSS-style object, and prints the string using the given styles.
 Mostly useful in browsers where there is a lot of CSS console support.
+
 ```JavaScript
 garden.styled( 'Look at me!', {
   backgroundColor: '#474350',
@@ -120,6 +122,7 @@ The debug method is similar to `log`, but it will only print if
 
 The story for trace is similar, though it behaves more like `catch` than `log`, meaning
 that if it is verbose, it will print a call stack.
+
 ```JavaScript
 garden.configure({ verbose: true })
 garden.debug( 'interesting information!' )
@@ -137,6 +140,7 @@ generic string as the argument. Easy peasy.
 It will only generate a new `Error` itself if the first argument is not already an `Error`,
 `TypeError`, or `ReferenceError`. If the value you are dealing with may or may not be
 an error, and you don't want to manually check yourself, then use this method.
+
 ```JavaScript
 garden.error( 'something went wrong!!1!' )
 garden.typeerror( 'you gave me the incorrect thing!' )
@@ -148,8 +152,9 @@ garden.catch( aThrownError )
 Each method takes a String, Symbol, or undefined as the first argument. `time` should
 be called at the begin of what you would like to time with a name or `Symbol` representing
 what you are timing, and `timeEnd` should be called once the task has been completed with
-the same name. The time taken to complete the task will then be logged up to 1/1,000,000,000th
-of a second.
+the same name. The time taken to complete the task will be tracked with a precision of up
+to 1 nano second, if the environment you're running supports high resolution timing.
+
 ```JavaScript
 garden.time( name ) // Doesn't print anything
 garden.timeEnd( name ) // Will print the time in between calling .time() and now
@@ -162,6 +167,7 @@ garden.timeEnd( tracker )
 ### count
 Takes a String, Symbol, or undefined as an argument, and then logs how many times `count`
 has been called with that specific argument.
+
 ```JavaScript
 garden.count() // 1
 garden.count() // 2
@@ -180,6 +186,7 @@ things that should be falsey. `throws` takes a function that should throw, and w
 throw if it doesn't, but will catch the error if it does. Additional arguments can
 be passed to provide additional details on what was expected, and possibly why
 the assert fails.
+
 ```JavaScript
 garden.assert( true, 'Expected to be true' ) // Does nothing
 garden.assert( false, 'Expected to be true' ) // Throws
@@ -198,6 +205,3 @@ garden.throws( () => variableThatDoesExist ) // Throws
 ### raw
 Passes all given arguments directly to the output stream, without scopes, time stamps, or
 any formatting. As the name implies, it just prints raw data.
-
-### v4 breaking changes
-- options.scopeStyle now expects a CSS-style object, not a chalk function
