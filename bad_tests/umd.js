@@ -3,7 +3,7 @@ import tests from './tests';
 
 tests( gardens );
 
-if ( gardens.environment.browser ) {
+if ( typeof document !== 'undefined' ) {
   const output = document.getElementById( 'output' );
   const stream = {
     write( string ) {

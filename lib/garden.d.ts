@@ -1,39 +1,110 @@
 export as namespace gardens;
 
-export interface Environment {
-  browser: boolean,
-  reactNative: boolean,
-  electron: boolean,
-  node: boolean,
-  deno: boolean,
-  performance: any,
-  readonly defaultOutputType: OutputType
+declare interface EnvironmentConfiguration {
+  defaultOutputType: OutputType,
+  defaultStream: WritableStreamish,
+  debug: string,
+  inspect: ( item: any, options: GardenOptions ) => string,
+  performance: {
+    now: () => number
+  },
+  style: ( text: string, style: CssObject ) => StyledMessage,
+  supportsColor: boolean,
+  timingPrecision: number
 }
 
-export class Manager {
+declare class Manager {
   private scopes: ManagerScope;
   scope( ...names: string[] ): Garden;
 }
 
-export interface ManagerScope {
+declare interface ManagerScope {
   default: Garden,
   nested: {
     [ name: string ]: ManagerScope
   }
 }
 
-export class Garden {
+// These are the correct types, but are unsupported by TypeScript and will cause errors
+// to be thrown from tsc. If and when this ever gets fixed, we should go back to using
+// these types again.
+
+// interface TimesObject {
+//   [ name: Name ]: number[]
+// }
+// interface CountsObject {
+//   [ name: Name ]: number
+// }
+
+// These types are far less specific, but they actually compile without throwing errors.
+type TimesObject = object;
+type CountsObject = object;
+
+declare interface GardenOptions {
+  readonly scope: string,
+  stream: WritableStreamish,
+  outputType: OutputType,
+  supportsColor: boolean,
+  timingPrecision: number,
+  scopeStyle: CssObject,
+  verbose: boolean,
+  displayTime: boolean,
+  displayDate: boolean
+}
+
+declare interface WritableStreamish {
+  write( ...messages: any[] ): any
+}
+
+declare type OutputType =
+  | 'ansi'
+  | 'console'
+  | 'html'
+  | 'text';
+
+declare interface CssObject {
+  backgroundColor: string,
+  color: string,
+  fontStyle: string,
+  fontWeight: number,
+  textDecoration: string
+  [ property: string ]: string | number
+}
+
+declare type Name =
+  | symbol
+  | string
+  | number;
+
+declare interface PrintType {
+  type: string,
+  style?: CssObject
+}
+
+declare interface StyledMessage {
+  text: string,
+  // Only used for outputType 'console'. The CSS string that corresponds to
+  // `text` and will be passed to console.log
+  format?: string
+}
+
+
+export default class Garden {
   private _super: Garden;
   private options: GardenOptions;
   private _times: TimesObject;
   private _counts: CountsObject;
+  private _env: EnvironmentConfiguration;
+
+  constructor( scope?: string, options?: Partial<GardenOptions>, _super?: Garden );
+  static configureEnvironment( update: Partial<EnvironmentConfiguration> ): void;
   
-  createScope( scope?: string, options?: GardenOptions ): Garden;
-  createManager( scope: string, options?: GardenOptions ): Manager;
+  createScope( scope?: string, options?: Partial<GardenOptions> ): Garden;
+  createManager( scope: string, options?: Partial<GardenOptions> ): Manager;
   bound(): Omit<this, 'createScope' | 'createManager' | 'bound'>;
 
   configure( update: Partial<GardenOptions> ): this;
-  private _checkOptions( update: GardenOptions ): void;
+  private _checkOptions( update: Partial<GardenOptions> ): void;
 
   assert( value: boolean, ...messages: any[] ): void;
   assert_eq( a: any, b: any, ...messages: any[] ): void;
@@ -48,6 +119,7 @@ export class Garden {
   success( ...messages: any[] ): void;
   warning( ...messages: any[] ): void;
   warn( ...messages: any[] ): void;
+  failure( ...messages: any[] ): void;
   fail( ...messages: any[] ): void;
 
   debug( ...messages: any[] ): boolean;
@@ -70,64 +142,3 @@ export class Garden {
   private _style( text, style, outputType: OutputType ): StyledMessage;
   private _transform( output: StyledMessage[] ): any[];
 }
-
-// These are the correct types, but are unsupported by TypeScript and will cause errors
-// to be thrown from tsc. If and when this ever gets fixed, we should go back to using
-// these types again.
-
-// interface TimesObject {
-//   [ name: Name ]: number[]
-// }
-// interface CountsObject {
-//   [ name: Name ]: number
-// }
-
-// These types are far less specific, but they actually compile without throwing errors.
-type TimesObject = object;
-type CountsObject = object;
-
-export interface GardenOptions {
-  readonly scope: string,
-  stream: WritableStreamish,
-  outputType: OutputType,
-  supportsColor: boolean,
-  timingPrecision: number,
-  scopeStyle: CssObject,
-  verbose: boolean,
-  displayTime: boolean,
-  displayDate: boolean
-}
-
-export interface WritableStreamish {
-  write( ...messages: any[] ): any
-}
-
-export type OutputType =
-  | 'ansi'
-  | 'console'
-  | 'html'
-  | 'text';
-
-export type CssObject = object;
-
-export type Name =
-  | symbol
-  | string
-  | number;
-
-interface PrintType {
-  type: string,
-  style?: CssObject
-}
-
-interface StyledMessage {
-  text: string,
-  // Only used for outputType 'console'. The CSS string that corresponds to
-  // `text` and will be passed to console.log
-  format?: string
-}
-
-// The type of our export has to be declared seperately, since you
-// can't really declare the export directly.
-declare const gardens: Garden & { environment: Environment };
-export default gardens;

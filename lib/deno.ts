@@ -1,6 +1,5 @@
-import Garden from './garden.js';
+import gardens from './garden.js';
 
-const gardens = new Garden();
 const hex = /^#[0-9a-f]{6}$/i;
 
 gardens.configureEnvironment({
@@ -31,8 +30,9 @@ gardens.configureEnvironment({
         text = `\u001B[1m${text}\u001B[22m`;
       }
 
-      if ( style.textDecoration === 'underline' ) {
-        text = `\u001B[4m${text}\u001B[24m`;
+      if ( style.textDecoration  ) {
+        if ( style.textDecoration.includes( 'underline' ) ) text = `\u001B[4m${text}\u001B[24m`;
+        if ( style.textDecoration.includes( 'line-through' ) ) text = `\u001B[9m${text}\u001B[29m`;
       }
     }
 
@@ -42,9 +42,4 @@ gardens.configureEnvironment({
   timingPrecision: 6
 });
 
-export default Object.assign(
-  gardens, {
-    environment: {
-      deno: Deno.version
-    }
-  });
+export default new gardens();
