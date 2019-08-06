@@ -15,6 +15,7 @@
     "ignoreCompilerErrors": true,
     "mode": "file",
     "out": "doc",
+    "readme": "none",
     "theme": "minimal"
   }
 }

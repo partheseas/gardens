@@ -1,1 +1,1 @@
-module.exports = require( './dist/reactnative.js' );
+module.exports = require( './dist/gardens.rn' );

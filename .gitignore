@@ -9,7 +9,6 @@ npm-debug.log*
 # Builds
 .rpt2_cache
 bad_tests/index.*
-bad_tests/**/*.d.ts
 dist
 doc
 
@@ -19,3 +18,4 @@ node_modules
 
 # Types
 lib/*.d.ts
+platform/*.d.ts

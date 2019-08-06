@@ -1,5 +1,5 @@
 // The .js extension is necessary for compatibility with Deno.
-import Garden from './garden.ts';
+import Garden from './gardens.ts';
 
 interface ManagerScope {
   default: Garden,

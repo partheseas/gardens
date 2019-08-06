@@ -1,4 +1,4 @@
-import gardens from './garden';
+import gardens from '../lib/gardens';
 
 const env = {
   browser: typeof window !== 'undefined'

@@ -1,2 +1,2 @@
-import gardens from './lib/deno.ts';
+import gardens from './platform/deno.ts';
 export default gardens;

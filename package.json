@@ -7,8 +7,8 @@
   "files": [
     "dist/*"
   ],
-  "main": "dist/gardens.js",
-  "types": "dist/types/umd.d.ts",
+  "main": "dist/gardens.umd.js",
+  "types": "dist/types/platform/umd.d.ts",
   "repository": "partheseas/gardens",
   "bugs": "https://github.com/partheseas/gardens/issues",
   "keywords": [

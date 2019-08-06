@@ -4,7 +4,7 @@ import minify from 'rollup-plugin-babel-minify';
 export default [{
   // UMD: Browsers and Node.js
   // =========================
-  input: 'lib/umd.ts',
+  input: 'platform/umd.ts',
   external: [
     'chalk',
     'perf_hooks',
@@ -23,14 +23,14 @@ export default [{
   ],
   output: {
     format: 'umd',
-    file: 'dist/gardens.js',
+    file: 'dist/gardens.umd.js',
     name: 'gardens',
     sourcemap: true
   }
 }, {
   // CJS: React Native (barebones)
   // =============================
-  input: 'lib/reactnative.ts',
+  input: 'platform/reactnative.ts',
   plugins: [
     typescript({
       abortOnError: false,
@@ -42,7 +42,7 @@ export default [{
   ],
   output: {
     format: 'cjs',
-    file: 'dist/reactnative.js',
+    file: 'dist/gardens.rn.js',
     name: 'gardens',
     sourcemap: true
   }
