@@ -7,10 +7,10 @@
     "target": "esnext"
   },
   "include": [
-    "./lib/*.ts"
+    "./lib/*.ts",
+    "./platform/*.ts"
   ],
   "typedocOptions": {
-    "exclude": [ "lib/deno_rt.d.ts", "lib/deno.ts" ],
     "excludeNotExported": true,
     "ignoreCompilerErrors": true,
     "mode": "file",
