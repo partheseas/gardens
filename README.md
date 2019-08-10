@@ -32,8 +32,12 @@ You should use Yarn and [pnp](https://yarnpkg.com/en/docs/pnp).
 
 Depending on where you're using Gardens, you might need to do any of the following...
 ```JavaScript
-// CommonJS (Node.js, Electron, React Native)
+// CommonJS (Node.js, Electron)
 const gardens = require( 'gardens' );
+```
+```JavaScript
+// CommonJS (React Native)
+const gardens = require( 'gardens/native' );
 ```
 ```JavaScript
 // Bundled ES6 (Browsers, Rollup, Webpack, Parcel, etc.)
@@ -41,7 +45,7 @@ import gardens from 'gardens';
 ```
 ```JavaScript
 // ES6 (Deno)
-import gardens from 'https://deno.land/x/gardens/deno.ts';
+import gardens from 'https://deno.land/x/gardens/mod.ts';
 ```
 ```JavaScript
 // <script> (Browsers)
