@@ -19,7 +19,7 @@ I don't know about feel free to open an issue!
 - Deno
 - React Native
 
-![macOS Screenshot](/media/gardens.png)
+![Code and output sample](/media/gardens.png)
 
 ## Installation
 ```Shell
@@ -28,6 +28,7 @@ yarn add gardens
 You should use Yarn and [pnp](https://yarnpkg.com/en/docs/pnp).
 
 ## Usage
+- [Site](https://mckay.la/gardens/)
 - [Documentation](https://gardens.now.sh)
 
 Depending on where you're using Gardens, you might need to do any of the following...
@@ -47,8 +48,8 @@ import gardens from 'gardens';
 // ES6 (Deno)
 import gardens from 'https://deno.land/x/gardens/mod.ts';
 ```
-```JavaScript
-// <script> (Browsers)
+```HTML
+<!-- <script> (Browsers) -->
 <script type="application/javascript" src="https://unpkg.com/gardens@^4"></script>
 ```
 

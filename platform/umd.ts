@@ -18,19 +18,6 @@ if ( env.browser ) {
 
   gardens.configureEnvironment({
     performance: hrt ? performance : null,
-    style( text, style ) {
-      return {
-        text,
-        format: style ? `${
-          Object.keys( style ).map( prop => `${
-            prop.replace( /[A-Z]/g, char => `-${
-              char.toLowerCase()
-            }` )}: ${
-              style[ prop ]
-            }` ).join( '; ' )
-        }` : ''
-      };
-    },
     supportsColor,
     timingPrecision: hrt ? 6 : 0
   });

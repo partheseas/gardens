@@ -32,10 +32,7 @@ const environment: EnvironmentConfiguration = {
   performance: {
     now: Date.now
   },
-  style: item =>
-    typeof item === 'string'
-      ? { text: item }
-      : { raw: item },
+  style: css,
   supportsColor: false,
   timingPrecision: 0
 };
@@ -58,6 +55,20 @@ function toString( from: any, fallback: string ): string {
   return from != null && typeof from.toString === 'function'
     ? from.toString()
     : fallback;
+}
+
+function css( text: string, style: CssObject ): StyledMessage {
+  return {
+    text,
+    format: style ? `${
+      Object.keys( style ).map( prop => `${
+        prop.replace( /[A-Z]/g, char => `-${
+          char.toLowerCase()
+        }` )}: ${
+          style[ prop ]
+        }` ).join( '; ' )
+    }` : ''
+  };
 }
 
 function inspect( item: any ): string {
@@ -152,7 +163,7 @@ type CountsObject = object;
 
 export default class Garden {
   private _super: Garden;
-  options: GardenOptions;
+  private options: GardenOptions;
 
   private _times: TimesObject;
   private _counts: CountsObject;
@@ -736,7 +747,7 @@ export default class Garden {
         : { text };
     }
     else if ( outputType === 'html' ) {
-      return environment.style( text, style );
+      return css( text, style );
     }
     else {
       return {

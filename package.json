@@ -5,10 +5,12 @@
   "description": "A useful logging utility for JavaScript everywhere. 🎉",
   "license": "MIT",
   "files": [
-    "dist/*"
+    "dist/*",
+    "native.js"
   ],
   "main": "dist/gardens.umd.js",
   "types": "dist/types/platform/umd.d.ts",
+  "homepage": "https://mckay.la/gardens/",
   "repository": "partheseas/gardens",
   "bugs": "https://github.com/partheseas/gardens/issues",
   "keywords": [
