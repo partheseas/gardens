@@ -55,7 +55,8 @@ import gardens from 'https://deno.land/x/gardens/mod.ts';
 
 ### Managers
 Managers are a really powerful way to use gardens for larger codebases. For details
-on their usage and why you should use them, read their [documentation](/doc/managers.md).
+on their usage and why you should use them, read their
+[documentation](https://gardens.now.sh/classes/manager.html).
 
 ### Configuration
 Configurations can be set per instance, and updated at any time. Each garden
